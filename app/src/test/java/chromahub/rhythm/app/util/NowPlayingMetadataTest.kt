@@ -52,14 +52,15 @@ class NowPlayingMetadataTest {
     }
 
     @Test
-    fun `mp3 320 maps to its bitrate badge`() {
-        assertEquals("320kbps", label(codec = "MP3", sampleRateHz = 44100, bitrateBps = 320_000))
+    fun `lossy tracks get a flat Lossy marker instead of a bitrate`() {
+        assertEquals("Lossy", label(codec = "MP3", sampleRateHz = 44100, bitrateBps = 320_000))
+        assertEquals("Lossy", label(codec = "AAC", sampleRateHz = 44100, bitrateBps = 128_000))
     }
 
     @Test
     fun `codec falls back to the file extension`() {
         assertEquals(
-            "320kbps",
+            "Lossy",
             label(codec = null, path = "/storage/music/song.mp3", sampleRateHz = 44100, bitrateBps = 320_000)
         )
     }

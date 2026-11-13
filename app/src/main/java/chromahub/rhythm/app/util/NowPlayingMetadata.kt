@@ -50,6 +50,14 @@ object NowPlayingMetadata {
             bitrateKbps = bitrateKbps,
             channelCount = channelCount ?: 2
         )
+
+        // Lossy stereo tracks get a flat "Lossy" marker instead of a bitrate
+        // figure: the point of the suffix is "can I tell if this is lossless",
+        // not a kbps readout. Descriptive formats (Dolby, DTS, MPEG-H) keep
+        // their own labels.
+        if (quality.qualityType == AudioQualityDetector.QualityType.LOSSY_COMPRESSED) {
+            return "Lossy"
+        }
         return AudioQualityDetector.getQualityBadge(quality)
     }
 
