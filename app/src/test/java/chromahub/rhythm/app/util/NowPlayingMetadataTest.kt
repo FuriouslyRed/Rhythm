@@ -1,0 +1,86 @@
+/*
+ * SPDX-FileCopyrightText: 2024-2026 Anjishnu Nandi <https://github.com/cromaguy>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+package chromahub.rhythm.app.util
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+/**
+ * Covers the "Artist • Quality" line used by the notification, lock screen,
+ * Android Auto and Bluetooth now-playing metadata.
+ */
+class NowPlayingMetadataTest {
+
+    private fun label(
+        codec: String?,
+        path: String? = null,
+        sampleRateHz: Int? = null,
+        bitrateBps: Int? = null,
+        channels: Int? = null
+    ) = NowPlayingMetadata.qualityLabel(
+        codec = codec,
+        path = path,
+        sampleRateHz = sampleRateHz,
+        bitrateBps = bitrateBps,
+        channelCount = channels
+    )
+
+    @Test
+    fun `cd quality flac maps to Lossless`() {
+        assertEquals("Lossless", label(codec = "FLAC", sampleRateHz = 44100, bitrateBps = 850_000))
+    }
+
+    @Test
+    fun `hi-res flac maps to Hi-Res`() {
+        assertEquals("Hi-Res", label(codec = "FLAC", sampleRateHz = 96000, bitrateBps = 2_800_000))
+    }
+
+    @Test
+    fun `studio master flac maps to Studio Master`() {
+        assertEquals("Studio Master", label(codec = "FLAC", sampleRateHz = 192000, bitrateBps = 6_000_000))
+    }
+
+    @Test
+    fun `dolby atmos maps to Dolby Atmos`() {
+        assertEquals(
+            "Dolby Atmos",
+            label(codec = "EAC3-JOC", sampleRateHz = 48000, bitrateBps = 768_000, channels = 6)
+        )
+    }
+
+    @Test
+    fun `mp3 320 maps to its bitrate badge`() {
+        assertEquals("320kbps", label(codec = "MP3", sampleRateHz = 44100, bitrateBps = 320_000))
+    }
+
+    @Test
+    fun `codec falls back to the file extension`() {
+        assertEquals(
+            "320kbps",
+            label(codec = null, path = "/storage/music/song.mp3", sampleRateHz = 44100, bitrateBps = 320_000)
+        )
+    }
+
+    @Test
+    fun `missing metadata yields no label`() {
+        assertEquals("", NowPlayingMetadata.qualityLabel(codec = null, path = null))
+    }
+
+    @Test
+    fun `artist line uses the bullet separator`() {
+        assertEquals("Nirvana • Lossless", NowPlayingMetadata.artistWithQuality("Nirvana", "Lossless"))
+    }
+
+    @Test
+    fun `blank label leaves the artist untouched`() {
+        assertEquals("Nirvana", NowPlayingMetadata.artistWithQuality("Nirvana", ""))
+    }
+
+    @Test
+    fun `artist whitespace is trimmed`() {
+        assertEquals("Nirvana • Hi-Res", NowPlayingMetadata.artistWithQuality("  Nirvana ", "Hi-Res"))
+    }
+}

@@ -63,6 +63,7 @@ import chromahub.rhythm.app.util.AudioDeviceManager
 import chromahub.rhythm.app.util.EqualizerUtils
 import chromahub.rhythm.app.util.GsonUtils
 import chromahub.rhythm.app.util.MediaUtils
+import chromahub.rhythm.app.util.NowPlayingMetadata
 import chromahub.rhythm.app.util.PlaylistImportExportUtils
 import chromahub.rhythm.app.util.RhythmBackupDetectedException
 import chromahub.rhythm.app.util.PlaybackCommandSerializer
@@ -1221,6 +1222,13 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     init {
         Log.d(TAG, "Initializing MusicViewModel")
         startLibrarySetupCompletionMonitor()
+
+        // Apply the "quality in artist" toggle to the song that is already playing.
+        viewModelScope.launch {
+            appSettings.playerQualityInNowPlayingArtist.collect {
+                refreshNowPlayingArtistMetadata()
+            }
+        }
         
         // Single coroutine for main initialization to ensure proper ordering
         viewModelScope.launch {
@@ -4733,7 +4741,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             val updatedMetadata = currentItem.mediaMetadata
                 .buildUpon()
                 .setTitle(lyricLine?.takeIf { it.isNotBlank() } ?: DEFAULT_BLUETOOTH_LYRIC_LINE)
-                .setArtist(mergeSongTitleAndArtist(song))
+                .setArtist(nowPlayingArtistWithTitle(song))
                 .setAlbumTitle(song.album)
                 .setArtworkUri(song.artworkUri ?: currentItem.mediaMetadata.artworkUri)
                 .setExtras(buildCanonicalMetadataExtras(song, currentItem.mediaMetadata.extras))
@@ -4772,15 +4780,16 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             val currentMetadata = currentItem.mediaMetadata
             val currentTitle = currentMetadata.title?.toString()
             val currentArtist = currentMetadata.artist?.toString()
+            val expectedArtist = nowPlayingArtist(targetSong)
 
-            if (currentTitle == targetSong.title && currentArtist == targetSong.artist) {
+            if (currentTitle == targetSong.title && currentArtist == expectedArtist) {
                 return
             }
 
             val restoredMetadata = currentMetadata
                 .buildUpon()
                 .setTitle(targetSong.title)
-                .setArtist(targetSong.artist)
+                .setArtist(expectedArtist)
                 .setAlbumTitle(targetSong.album)
                 .setArtworkUri(targetSong.artworkUri ?: currentMetadata.artworkUri)
                 .setExtras(buildCanonicalMetadataExtras(targetSong, currentMetadata.extras))
@@ -4796,6 +4805,49 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         } finally {
             lastAppliedBluetoothLyricSongId = null
             lastAppliedBluetoothLyricLine = null
+        }
+    }
+
+    /**
+     * Artist line handed to the system (notification, lock screen, Android Auto,
+     * Bluetooth). Keeps the plain artist unless the "quality in artist" setting
+     * is on, in which case it becomes "Artist • Hi-Res" and friends.
+     */
+    private fun nowPlayingArtist(song: Song): String =
+        NowPlayingMetadata.displayArtist(
+            song = song,
+            includeQuality = appSettings.playerQualityInNowPlayingArtist.value
+        )
+
+    /** Same as [nowPlayingArtist], but for the Bluetooth-lyrics "title - artist" form. */
+    private fun nowPlayingArtistWithTitle(song: Song): String {
+        val base = mergeSongTitleAndArtist(song)
+        if (!appSettings.playerQualityInNowPlayingArtist.value) return base
+        val label = NowPlayingMetadata.qualityLabel(song)
+        return if (label.isBlank()) base else base + NowPlayingMetadata.QUALITY_SEPARATOR + label
+    }
+
+    /**
+     * Pushes the current artist line onto the item that is already playing so
+     * flipping the setting applies immediately instead of at the next track.
+     */
+    private fun refreshNowPlayingArtistMetadata() {
+        val controller = mediaController ?: return
+        val song = _currentSong.value ?: return
+        val index = controller.currentMediaItemIndex
+        if (index == C.INDEX_UNSET || index !in 0 until controller.mediaItemCount) return
+
+        val item = controller.getMediaItemAt(index)
+        if (item.mediaId != song.id) return
+
+        try {
+            val metadata = item.mediaMetadata.buildUpon()
+                .setArtist(nowPlayingArtist(song))
+                .setExtras(buildCanonicalMetadataExtras(song, item.mediaMetadata.extras))
+                .build()
+            controller.replaceMediaItem(index, item.buildUpon().setMediaMetadata(metadata).build())
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to refresh now-playing artist metadata", e)
         }
     }
 
@@ -4966,10 +5018,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setTitle(this.title)
-                    .setArtist(this.artist)
+                    .setArtist(nowPlayingArtist(this))
                     .setAlbumTitle(this.album)
                     .setDurationMs(this.duration)
                     .setArtworkUri(this.artworkUri)
+                    .setExtras(buildCanonicalMetadataExtras(this, null))
                     .build()
             )
             .build()
@@ -4980,7 +5033,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         val metadata = mediaItem.mediaMetadata
 
         val title = metadata.title?.toString()?.takeIf { it.isNotBlank() } ?: return null
-        val artist = metadata.artist?.toString().orEmpty().ifBlank { "Unknown Artist" }
+        val artist = metadata.extras?.getString(METADATA_EXTRA_ORIGINAL_ARTIST)?.takeIf { it.isNotBlank() }
+            ?: metadata.artist?.toString().orEmpty().ifBlank { "Unknown Artist" }
         val album = metadata.albumTitle?.toString().orEmpty().ifBlank { "Unknown Album" }
 
         return Song(

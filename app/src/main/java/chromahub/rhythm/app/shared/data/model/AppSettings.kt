@@ -609,6 +609,7 @@ class AppSettings private constructor(context: Context) {
         private const val KEY_PLAYER_SHOW_SONG_INFO_ON_ARTWORK = "player_show_song_info_on_artwork"
         private const val KEY_PLAYER_ARTWORK_CORNER_RADIUS = "player_artwork_corner_radius" // 0-40 dp
         private const val KEY_PLAYER_SHOW_AUDIO_QUALITY_BADGES = "player_show_audio_quality_badges"
+        private const val KEY_PLAYER_QUALITY_IN_NOW_PLAYING_ARTIST = "player_quality_in_now_playing_artist"
         private const val KEY_EXPRESSIVE_QUALITY_BADGE_ALWAYS_VISIBLE = "expressive_quality_badge_always_visible"
         private const val KEY_PLAYER_PROGRESS_STYLE = "player_progress_style" // "NORMAL", "WAVY", "ROUNDED", "THIN", "THICK"
         private const val KEY_PLAYER_PROGRESS_THUMB_STYLE = "player_progress_thumb_style" // "NONE", "DEFAULT", "CIRCLE", "SQUARE", "PILL", "DIAMOND", "FLOWER", "HEART", "COOKIE", "PUFFY"
@@ -5758,6 +5759,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         _playerShowSongInfoOnArtwork.value = prefs.getBoolean(KEY_PLAYER_SHOW_SONG_INFO_ON_ARTWORK, true)
         _playerArtworkCornerRadius.value = prefs.getInt(KEY_PLAYER_ARTWORK_CORNER_RADIUS, 28)
         _playerShowAudioQualityBadges.value = prefs.getBoolean(KEY_PLAYER_SHOW_AUDIO_QUALITY_BADGES, true)
+        _playerQualityInNowPlayingArtist.value = prefs.getBoolean(KEY_PLAYER_QUALITY_IN_NOW_PLAYING_ARTIST, false)
         _expressiveQualityBadgeAlwaysVisible.value = prefs.getBoolean(KEY_EXPRESSIVE_QUALITY_BADGE_ALWAYS_VISIBLE, false)
         
         // Lyrics song preferences and renaming behavior
@@ -6327,6 +6329,18 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     fun setPlayerShowAudioQualityBadges(value: Boolean) {
         _playerShowAudioQualityBadges.value = value
         prefs.edit { putBoolean(KEY_PLAYER_SHOW_AUDIO_QUALITY_BADGES, value) }
+    }
+
+    /**
+     * Appends the track's audio quality to the artist line shown by the system
+     * (notification, lock screen, Android Auto, Bluetooth), e.g. "Artist • Hi-Res".
+     */
+    private val _playerQualityInNowPlayingArtist =
+        MutableStateFlow(prefs.getBoolean(KEY_PLAYER_QUALITY_IN_NOW_PLAYING_ARTIST, false))
+    val playerQualityInNowPlayingArtist: StateFlow<Boolean> = _playerQualityInNowPlayingArtist.asStateFlow()
+    fun setPlayerQualityInNowPlayingArtist(value: Boolean) {
+        _playerQualityInNowPlayingArtist.value = value
+        prefs.edit { putBoolean(KEY_PLAYER_QUALITY_IN_NOW_PLAYING_ARTIST, value) }
     }
 
     private val _expressiveQualityBadgeAlwaysVisible = MutableStateFlow(prefs.getBoolean(KEY_EXPRESSIVE_QUALITY_BADGE_ALWAYS_VISIBLE, false))

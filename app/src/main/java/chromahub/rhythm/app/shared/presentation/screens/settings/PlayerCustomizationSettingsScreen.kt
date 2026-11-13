@@ -185,6 +185,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
     val playerShowSongInfoOnArtwork by appSettings.playerShowSongInfoOnArtwork.collectAsState()
     val playerArtworkCornerRadius by appSettings.playerArtworkCornerRadius.collectAsState()
     val playerShowAudioQualityBadges by appSettings.playerShowAudioQualityBadges.collectAsState()
+    val playerQualityInNowPlayingArtist by appSettings.playerQualityInNowPlayingArtist.collectAsState()
     val expressiveQualityBadgeAlwaysVisible by appSettings.expressiveQualityBadgeAlwaysVisible.collectAsState()
     val expressiveShapesEnabled by appSettings.expressiveShapesEnabled.collectAsState()
     val playerAmbientBackdropEnabled by appSettings.playerAmbientBackdropEnabled.collectAsState()
@@ -331,6 +332,17 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 description = context.getString(R.string.settings_audio_quality_badges_desc),
                                 toggleState = playerShowAudioQualityBadges,
                                 onToggleChange = { appSettings.setPlayerShowAudioQualityBadges(it) }
+                            )
+                        ),
+                        toMaterial3SettingsItem(
+                            context = context,
+                            hapticFeedback = haptics,
+                            item = SettingItem(
+                                icon = MaterialSymbolIcon("badge"),
+                                title = context.getString(R.string.settings_quality_in_now_playing_artist),
+                                description = context.getString(R.string.settings_quality_in_now_playing_artist_desc),
+                                toggleState = playerQualityInNowPlayingArtist,
+                                onToggleChange = { appSettings.setPlayerQualityInNowPlayingArtist(it) }
                             )
                         ),
                         toMaterial3SettingsItem(
