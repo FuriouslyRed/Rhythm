@@ -7,8 +7,6 @@ package chromahub.rhythm.app.shared.data.repository
 
 import android.content.Context
 import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.reflect.TypeToken
 import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.util.GenreUtils
 import kotlinx.coroutines.Dispatchers
@@ -66,16 +64,22 @@ enum class StatsTimeRange(val displayName: String, val daysBack: Int) {
  */
 class PlaybackStatsRepository private constructor(private val context: Context) {
     private val gson = Gson()
-    private val historyFile = File(context.applicationContext.filesDir, "playback_history.json")
-    private val fileLock = Any()
-    private val eventsType = object : TypeToken<MutableList<PlaybackEvent>>() {}.type
+
+    /**
+     * Event log with an in-memory cache and a background writer. Appends never
+     * touch disk on the calling thread (see [PlaybackEventStore]).
+     */
+    private val eventStore = PlaybackEventStore(
+        file = File(context.applicationContext.filesDir, HISTORY_FILE_NAME),
+        gson = gson
+    )
     
     companion object {
         @Volatile
         private var instance: PlaybackStatsRepository? = null
         
         // Keep 90 days of history
-        private val MAX_HISTORY_AGE_MS = TimeUnit.DAYS.toMillis(90)
+        private const val HISTORY_FILE_NAME = "playback_history.json"
         
         // Maximum reasonable event duration (4 hours)
         private val MAX_REASONABLE_EVENT_DURATION_MS = TimeUnit.HOURS.toMillis(4)
@@ -270,18 +274,7 @@ class PlaybackStatsRepository private constructor(private val context: Context) 
             genre = song.genre
         )
         
-        synchronized(fileLock) {
-            val events = readEventsLocked()
-            
-            // Clean old events
-            val cutoff = coercedTimestamp - MAX_HISTORY_AGE_MS
-            if (cutoff > 0) {
-                events.removeAll { it.endMillis() < cutoff }
-            }
-            
-            events += event
-            writeEventsLocked(events)
-        }
+        eventStore.append(event)
     }
     
     /**
@@ -310,15 +303,7 @@ class PlaybackStatsRepository private constructor(private val context: Context) 
             genre = genre
         )
         
-        synchronized(fileLock) {
-            val events = readEventsLocked()
-            val cutoff = timestamp - MAX_HISTORY_AGE_MS
-            if (cutoff > 0) {
-                events.removeAll { it.endMillis() < cutoff }
-            }
-            events += event
-            writeEventsLocked(events)
-        }
+        eventStore.append(event)
     }
     
     /**
@@ -709,44 +694,13 @@ class PlaybackStatsRepository private constructor(private val context: Context) 
      * Clear all history
      */
     fun clearHistory() {
-        synchronized(fileLock) {
-            if (historyFile.exists()) {
-                historyFile.delete()
-            }
-        }
+        eventStore.clear()
         _statsSummary.value = null
     }
     
     // Private helper methods
     
-    private fun readEvents(): List<PlaybackEvent> = synchronized(fileLock) { 
-        readEventsLocked() 
-    }
-    
-    private fun readEventsLocked(): MutableList<PlaybackEvent> {
-        if (!historyFile.exists()) {
-            return mutableListOf()
-        }
-        val raw = runCatching { historyFile.readText() }
-            .getOrNull()
-            ?.takeIf { it.isNotBlank() }
-            ?: return mutableListOf()
-        
-        return runCatching {
-            val element = gson.fromJson(raw, JsonElement::class.java)
-            if (element.isJsonArray) {
-                gson.fromJson<MutableList<PlaybackEvent>>(element, eventsType)
-            } else {
-                mutableListOf()
-            }
-        }.getOrElse { mutableListOf() }
-    }
-    
-    private fun writeEventsLocked(events: List<PlaybackEvent>) {
-        runCatching {
-            historyFile.writeText(gson.toJson(events))
-        }
-    }
+    private fun readEvents(): List<PlaybackEvent> = eventStore.snapshot()
     
     private fun mergeSongEvents(events: List<PlaybackEvent>): List<PlaybackSegment> {
         if (events.isEmpty()) return emptyList()
