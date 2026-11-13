@@ -56,7 +56,13 @@ android {
 
     // Product flavors for different distribution channels
     flavorDimensions += "distribution"
-    
+
+    // Personal build identity. Defaults to a separate package so a personal build
+    // can sit next to the Play/GitHub install; pass -PpersonalAppId=chromahub.rhythm.app
+    // to replace the official app instead (needs one uninstall, since the signing key differs).
+    val personalApplicationId = project.findProperty("personalAppId")?.toString()
+        ?: "chromahub.rhythm.app.personal"
+
     productFlavors {
         create("fdroid") {
             dimension = "distribution"
@@ -71,6 +77,9 @@ android {
             buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "true")
             buildConfigField("boolean", "ENABLE_WIKIPEDIA", "true")
             buildConfigField("String", "FLAVOR", "\"fdroid\"")
+            // F-Droid forbids self-updating; personal builds are self-signed and
+            // must not prompt for upstream APKs either.
+            buildConfigField("boolean", "UPDATES_DEFAULT_ENABLED", "false")
             
             versionNameSuffix = "-fdroid"
         }
@@ -88,8 +97,29 @@ android {
             buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "true")
             buildConfigField("boolean", "ENABLE_WIKIPEDIA", "true")
             buildConfigField("String", "FLAVOR", "\"github\"")
+            buildConfigField("boolean", "UPDATES_DEFAULT_ENABLED", "true")
             
             versionNameSuffix = "-gh"
+        }
+
+        create("personal") {
+            dimension = "distribution"
+            applicationId = personalApplicationId
+
+            // Personal build: full feature set, same as GitHub/F-Droid.
+            buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "true")
+            buildConfigField("boolean", "ENABLE_LYRICALLY_API", "true")
+            buildConfigField("boolean", "ENABLE_DEEZER", "true")
+            buildConfigField("boolean", "ENABLE_LRCLIB", "true")
+            buildConfigField("boolean", "ENABLE_BETTERLYRICS", "true")
+            buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "true")
+            buildConfigField("boolean", "ENABLE_WIKIPEDIA", "true")
+            buildConfigField("String", "FLAVOR", "\"personal\"")
+            // Self-signed with a private key: upstream release APKs can never
+            // install over this build, so update prompts are off by default.
+            buildConfigField("boolean", "UPDATES_DEFAULT_ENABLED", "false")
+
+            versionNameSuffix = "-personal"
         }
     }
 
