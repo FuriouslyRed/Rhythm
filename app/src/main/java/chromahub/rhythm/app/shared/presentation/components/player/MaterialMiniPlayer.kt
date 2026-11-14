@@ -84,6 +84,7 @@ import chromahub.rhythm.app.ui.theme.PlayerButtonColor
 import chromahub.rhythm.app.ui.theme.PlayerProgressColor
 import chromahub.rhythm.app.util.ImageUtils
 import chromahub.rhythm.app.util.M3ImageUtils
+import chromahub.rhythm.app.util.NowPlayingMetadata
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
 import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
 import coil.compose.AsyncImage
@@ -892,7 +893,9 @@ shape = RectangleShape,
                                         fontSize = if (isCompactHeight) 13.sp else 16.sp
                                     ),
                                     gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                                    enabled = true
+                                    enabled = true,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             } else {
                                 Text(
@@ -907,82 +910,108 @@ shape = RectangleShape,
                                 )
                             }
 
-                            // Original artist/time layout, with the glyph laid
-                            // over the trailing edge so the clock can resize
-                            // freely without moving it.
-                            Box(modifier = Modifier.fillMaxWidth()) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = spacedBy(if (isCompactHeight) 3.dp else 6.dp),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(end = if (showMiniQualityBadge) 20.dp else 0.dp)
-                                ) {
-                                    // Artist info with auto-scrolling
-                                    if (song != null) {
-                                        AutoScrollingTextOnDemand(
-                                            text = song.artist,
-                                            style = MaterialTheme.typography.bodyMedium.copy(
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = if (isCompactHeight) 11.sp else 13.sp
-                                            ),
-                                            gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                                            modifier = Modifier.weight(1f, fill = false),
-                                            enabled = true
-                                        )
-                                    } else {
+                            // Artist on the left, time on the right, so the pill
+                            // below can sit centred without nudging either.
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                if (song != null) {
+                                    AutoScrollingTextOnDemand(
+                                        text = song.artist,
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = if (isCompactHeight) 11.sp else 13.sp
+                                        ),
+                                        gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
+                                        modifier = Modifier.weight(1f, fill = false),
+                                        enabled = true
+                                    )
+                                } else {
+                                    Text(
+                                        text = "",
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = if (isCompactHeight) 11.sp else 13.sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f, fill = false)
+                                    )
+                                }
+
+                                if (miniPlayerShowTime && song != null && progress() > 0) {
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                            alpha = 0.6f
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
                                         Text(
-                                            text = "",
-                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                            text = "${
+                                                formatDuration(
+                                                    (progress() * song.duration).toLong(),
+                                                    useHoursFormat
+                                                )
+                                            }/${formatDuration(song.duration, useHoursFormat)}",
+                                            style = MaterialTheme.typography.labelSmall.copy(
                                                 fontWeight = FontWeight.Medium,
-                                                fontSize = if (isCompactHeight) 11.sp else 13.sp
+                                                fontSize = if (isCompactHeight) 8.sp else 10.sp
                                             ),
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.weight(1f, fill = false)
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            modifier = Modifier.padding(
+                                                horizontal = if (isCompactHeight) 4.dp else 6.dp,
+                                                vertical = if (isCompactHeight) 1.dp else 2.dp
+                                            )
                                         )
                                     }
+                                }
+                            }
 
-                                    // Compact time indicator - controlled by setting
-                                    if (miniPlayerShowTime && song != null && progress() > 0) {
-                                        Surface(
-                                            color = MaterialTheme.colorScheme.primaryContainer.copy(
-                                                alpha = 0.6f
-                                            ),
-                                            shape = RoundedCornerShape(8.dp)
+                            // Quality pill: glyph + tier, centred under the artist.
+                            if (showMiniQualityBadge && song != null) {
+                                val pillLabel = miniPlaybackQuality
+                                    ?.takeIf { it.mediaId == song.id }
+                                    ?.let { NowPlayingMetadata.labelFor(it) }
+                                    ?.takeIf { it.isNotBlank() }
+                                    ?: NowPlayingMetadata.qualityLabel(song)
+
+                                if (pillLabel.isNotBlank()) {
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                        shape = RoundedCornerShape(8.dp),
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.padding(
+                                                start = 5.dp, end = if (isCompactHeight) 5.dp else 6.dp,
+                                                top = 1.dp, bottom = 1.dp
+                                            )
                                         ) {
+                                            AudioQualityIcon(
+                                                song = song,
+                                                playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
+                                                iconSize = if (isCompactHeight) 10.dp else 12.dp,
+                                                padding = 0.dp,
+                                                shape = RectangleShape,
+                                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                            Spacer(modifier = Modifier.width(3.dp))
                                             Text(
-                                                text = "${
-                                                    formatDuration(
-                                                        (progress() * song.duration).toLong(),
-                                                        useHoursFormat
-                                                    )
-                                                }/${formatDuration(song.duration, useHoursFormat)}",
+                                                text = pillLabel,
                                                 style = MaterialTheme.typography.labelSmall.copy(
                                                     fontWeight = FontWeight.Medium,
-                                                    fontSize = if (isCompactHeight) 8.sp else 10.sp
+                                                    fontSize = if (isCompactHeight) 8.sp else 9.sp
                                                 ),
                                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                modifier = Modifier.padding(
-                                                    horizontal = if (isCompactHeight) 4.dp else 6.dp,
-                                                    vertical = if (isCompactHeight) 1.dp else 2.dp
-                                                )
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
                                         }
                                     }
-                                }
-
-                                if (showMiniQualityBadge && song != null) {
-                                    AudioQualityIcon(
-                                        song = song,
-                                        playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
-                                        iconSize = 16.dp,
-                                        padding = 0.dp,
-                                        shape = RectangleShape,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.align(Alignment.CenterEnd)
-                                    )
                                 }
                             }
                         }
