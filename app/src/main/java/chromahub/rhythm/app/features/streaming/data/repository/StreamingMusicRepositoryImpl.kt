@@ -1262,6 +1262,9 @@ class StreamingMusicRepositoryImpl(
             
             downloadedSongsMap[songId] = downloadedSong
             saveDownloadedSongsIndex()
+            // The UI observes this Flow, not the map: without this the track
+            // stays "not downloaded" until the app restarts.
+            downloadedSongsFlow.value = downloadedSongsMap.values.toList()
             true
         } catch (e: Exception) {
             Log.e("StreamingMusicRepo", "Error downloading song $songId", e)
@@ -1291,6 +1294,7 @@ class StreamingMusicRepositoryImpl(
         val removedSong = downloadedSongsMap.remove(songId)
         if (removedSong != null) {
             saveDownloadedSongsIndex()
+            downloadedSongsFlow.value = downloadedSongsMap.values.toList()
 
             val safeAlbumKey = (removedSong.albumId ?: "${removedSong.artist}_${removedSong.album}")
                 .replace(":", "_").replace("/", "_").replace("\\", "_").replace(" ", "_").lowercase()
