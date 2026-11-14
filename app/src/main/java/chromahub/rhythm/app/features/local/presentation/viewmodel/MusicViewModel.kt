@@ -1231,6 +1231,13 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
+        // The suffix depends on badges: turning them off strips it immediately.
+        viewModelScope.launch {
+            appSettings.playerShowAudioQualityBadges.collect {
+                refreshNowPlayingArtistMetadata()
+            }
+        }
+
         // Upgrade the suffix when the decoder publishes telemetry: null means the
         // service cleared it for a transition, so ignore those to avoid downgrading
         // to the tag-based guess and flapping between the two.
@@ -4824,6 +4831,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      * is on, in which case it becomes "Artist • Hi-Res" and friends.
      */
     private fun nowPlayingArtist(song: Song): String {
+        if (!appSettings.playerShowAudioQualityBadges.value) return song.artist
         if (!appSettings.playerQualityInNowPlayingArtist.value) return song.artist
 
         // Prefer the decoder telemetry the quality badge shows; fall back to the

@@ -354,7 +354,10 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 title = context.getString(R.string.settings_quality_in_now_playing_artist),
                                 description = context.getString(R.string.settings_quality_in_now_playing_artist_desc),
                                 toggleState = playerQualityInNowPlayingArtist,
-                                onToggleChange = { appSettings.setPlayerQualityInNowPlayingArtist(it) }
+                                onToggleChange = { appSettings.setPlayerQualityInNowPlayingArtist(it) },
+                                // The suffix is built from the badge telemetry, so
+                                // it stays unavailable until badges are enabled.
+                                enabled = playerShowAudioQualityBadges
                             )
                         )
                     ),

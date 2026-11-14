@@ -6514,6 +6514,19 @@ fun calculateSongCategories(
     preparedSongs: List<Song>,
     hasDownloadedSongs: Boolean = false
 ): List<String> {
+    // Temporary probe: what do container-codec songs actually carry?
+    android.util.Log.d(
+        "RhythmCatProbe",
+        preparedSongs.asSequence()
+            .filter {
+                val c = it.codec?.uppercase().orEmpty()
+                c.contains("M4A") || c.contains("MP4") || c.contains("MKA") || c.contains("MKV")
+            }
+            .take(25)
+            .joinToString(" | ") {
+                "${it.title}: codec=${it.codec} ch=${it.channels} br=${it.bitrate} sr=${it.sampleRate}"
+            } + "  [total songs=${preparedSongs.size}]"
+    )
     val allCategories = mutableListOf("All")
 
     if (hasDownloadedSongs) {
