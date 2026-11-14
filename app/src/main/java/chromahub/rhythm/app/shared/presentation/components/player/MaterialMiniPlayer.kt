@@ -71,6 +71,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -179,6 +180,21 @@ fun MaterialMiniPlayer(
     
     val density = LocalDensity.current
     val haptic = LocalHapticFeedback.current
+
+    // The pill must not resize as the clock ticks: reserve the width of the
+    // widest readout this track can produce ("6:22/6:22", or hours form).
+    val timeTextMeasurer = rememberTextMeasurer()
+    val timeStyle = MaterialTheme.typography.labelSmall.copy(
+        fontWeight = FontWeight.Medium,
+        fontSize = if (isCompactHeight) 8.sp else 10.sp,
+        fontFeatureSettings = "tnum"
+    )
+    val widestTimeWidth = remember(song?.duration, useHoursFormat, timeStyle, density) {
+        val maxReadout = song?.let { formatDuration(it.duration, useHoursFormat) }.orEmpty()
+        if (maxReadout.isBlank()) 0.dp else with(density) {
+            timeTextMeasurer.measure("$maxReadout/$maxReadout", timeStyle).size.width.toDp()
+        }
+    }
     val animatedProgress by animateFloatAsState(
         targetValue = progress(),
         animationSpec = spring(stiffness = Spring.StiffnessLow),
@@ -962,15 +978,17 @@ shape = RectangleShape,
                                                     useHoursFormat
                                                 )
                                             }/${formatDuration(song.duration, useHoursFormat)}",
-                                            style = MaterialTheme.typography.labelSmall.copy(
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = if (isCompactHeight) 8.sp else 10.sp
-                                            ),
+                                            style = timeStyle,
                                             color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            modifier = Modifier.padding(
-                                                horizontal = if (isCompactHeight) 4.dp else 6.dp,
-                                                vertical = if (isCompactHeight) 1.dp else 2.dp
-                                            )
+                                            textAlign = TextAlign.End,
+                                            maxLines = 1,
+                                            softWrap = false,
+                                            modifier = Modifier
+                                                .padding(
+                                                    horizontal = if (isCompactHeight) 4.dp else 6.dp,
+                                                    vertical = if (isCompactHeight) 1.dp else 2.dp
+                                                )
+                                                .width(widestTimeWidth)
                                         )
                                     }
                                 }
