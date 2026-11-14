@@ -909,80 +909,79 @@ shape = RectangleShape,
 
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = spacedBy(if (isCompactHeight) 3.dp else 6.dp)
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                // Artist info with auto-scrolling
-                                if (song != null) {
-                                    AutoScrollingTextOnDemand(
-                                        text = song.artist,
-                                        style = MaterialTheme.typography.bodyMedium.copy(
-                                            fontWeight = FontWeight.Medium,
-                                            fontSize = if (isCompactHeight) 11.sp else 13.sp
-                                        ),
-                                        gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                                        modifier = Modifier.weight(1f, fill = false),
-                                        enabled = true
-                                    )
-                                    if (showMiniQualityBadge && !miniPlayerShowTime) {
-                                        AudioQualityIcon(
-                                            song = song,
-                                            playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
-                                            iconSize = 16.dp,
-                                            padding = 0.dp,
-shape = RectangleShape,
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = spacedBy(if (isCompactHeight) 3.dp else 6.dp),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    // Artist info with auto-scrolling
+                                    if (song != null) {
+                                        AutoScrollingTextOnDemand(
+                                            text = song.artist,
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = if (isCompactHeight) 11.sp else 13.sp
+                                            ),
+                                            gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
+                                            modifier = Modifier.weight(1f),
+                                            enabled = true
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "",
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = if (isCompactHeight) 11.sp else 13.sp
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.weight(1f)
                                         )
                                     }
-                                } else {
-                                    Text(
-                                        text = "",
-                                        style = MaterialTheme.typography.bodyMedium.copy(
-                                            fontWeight = FontWeight.Medium,
-                                            fontSize = if (isCompactHeight) 11.sp else 13.sp
-                                        ),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.weight(1f, fill = false)
-                                    )
+
+                                    // Compact time indicator - controlled by setting
+                                    if (miniPlayerShowTime && song != null && progress() > 0) {
+                                        Surface(
+                                            color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                                alpha = 0.6f
+                                            ),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(
+                                                text = "${
+                                                    formatDuration(
+                                                        (progress() * song.duration).toLong(),
+                                                        useHoursFormat
+                                                    )
+                                                }/${formatDuration(song.duration, useHoursFormat)}",
+                                                style = MaterialTheme.typography.labelSmall.copy(
+                                                    fontWeight = FontWeight.Medium,
+                                                    fontSize = if (isCompactHeight) 8.sp else 10.sp
+                                                ),
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                modifier = Modifier.padding(
+                                                    horizontal = if (isCompactHeight) 4.dp else 6.dp,
+                                                    vertical = if (isCompactHeight) 1.dp else 2.dp
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
 
-                                // Compact time indicator - controlled by setting
-                                if (miniPlayerShowTime && song != null && progress() > 0) {
-                                    Surface(
-                                        color = MaterialTheme.colorScheme.primaryContainer.copy(
-                                            alpha = 0.6f
-                                        ),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text(
-                                            text = "${
-                                                formatDuration(
-                                                    (progress() * song.duration).toLong(),
-                                                    useHoursFormat
-                                                )
-                                            }/${formatDuration(song.duration, useHoursFormat)}",
-                                            style = MaterialTheme.typography.labelSmall.copy(
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = if (isCompactHeight) 8.sp else 10.sp
-                                            ),
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            modifier = Modifier.padding(
-                                                horizontal = if (isCompactHeight) 4.dp else 6.dp,
-                                                vertical = if (isCompactHeight) 1.dp else 2.dp
-                                            )
-                                        )
-                                    }
-                                }
-                                // Fixed slot so the artist line never reflows
-                                if (showMiniQualityBadge && miniPlayerShowTime && song != null) {
+                                // Pinned to the far right so clock ticks cannot
+                                // shift the glyph.
+                                if (showMiniQualityBadge && song != null) {
                                     AudioQualityIcon(
                                         song = song,
                                         playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
                                         iconSize = 16.dp,
                                         padding = 0.dp,
-shape = RectangleShape,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        shape = RectangleShape,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(start = if (isCompactHeight) 2.dp else 4.dp)
                                     )
                                 }
                             }
