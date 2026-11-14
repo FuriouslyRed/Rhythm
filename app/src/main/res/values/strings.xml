@@ -1478,7 +1478,7 @@
     <string name="settings_audio_quality_badges">Audio Quality Badges</string>
     <string name="settings_audio_quality_badges_desc">Display codec and bitrate information</string>
     <string name="settings_quality_in_now_playing_artist">Quality In Now Playing</string>
-    <string name="settings_quality_in_now_playing_artist_desc">Append the track quality to the artist shown in the Android Media Player UI. Lossy quality files will not be shown.</string>
+    <string name="settings_quality_in_now_playing_artist_desc">Append the track quality to the artist shown in the Android Media Player UI, lossy quality files will not be shown</string>
     <string name="settings_show_lyrics_player">Show Lyrics</string>
     <string name="settings_show_lyrics_player_desc">Display synchronized lyrics in player</string>
     <string name="settings_lyrics_transition">Lyrics Transition</string>

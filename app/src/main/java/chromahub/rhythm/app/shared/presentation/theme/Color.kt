@@ -133,7 +133,10 @@ val WarningDark = Color(0xFFFFB74D) // Light orange for dark theme
 // Material 3 Preset Theme Seeds
 // ============================================
 
-val PresetDefaultSeed = Color(0xFF6750A4)
+// Red Edition default: red seed at the same tonal weight as upstream's #6750A4,
+// so the generated TONAL_SPOT scheme keeps the original's softness rather than
+// turning into a saturated alarm red.
+val PresetDefaultSeed = Color(0xFFB3261E)
 val PresetWarmSeed = Color(0xFFFF6B35)
 val PresetCoolSeed = Color(0xFF1E88E5)
 val PresetForestSeed = Color(0xFF2E7D32)

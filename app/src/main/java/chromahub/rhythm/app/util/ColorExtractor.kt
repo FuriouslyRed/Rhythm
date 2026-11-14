@@ -163,7 +163,7 @@ object ColorExtractor {
                 generateColorSchemeFromSeed(seedArgb, isMonochrome)
             }.getOrElse {
                 android.util.Log.e(TAG, "Failed to extract seed color", it)
-                generateColorSchemeFromSeed(0xFF6750A4.toInt(), false)
+                generateColorSchemeFromSeed(0xFFB3261E.toInt(), false)
             }
 
             // Recycle bitmap if it's not the original
@@ -432,7 +432,7 @@ object ColorExtractor {
      * Calculate average color from pixels
      */
     private fun averageColorArgb(pixels: IntArray): Int {
-        if (pixels.isEmpty()) return 0xFF6750A4.toInt()
+        if (pixels.isEmpty()) return 0xFFB3261E.toInt()
 
         var totalRed = 0L
         var totalGreen = 0L
