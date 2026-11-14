@@ -1735,7 +1735,12 @@ private fun StreamingSong.toLocalSong(): Song {
         trackNumber = 0,
         year = 0,
         genre = null,
-        albumArtist = this.albumArtist
+        albumArtist = this.albumArtist,
+        bitrate = this.bitrate,
+        sampleRate = this.sampleRate,
+        bitDepth = this.bitDepth,
+        channels = this.channels,
+        codec = this.codec
     )
 }
 

@@ -57,6 +57,7 @@ fun StreamingSong.toLibrarySong(): Song {
         genre = genre,
         bitrate = bitrate,
         sampleRate = sampleRate,
+        bitDepth = bitDepth,
         channels = channels,
         codec = codec
     )

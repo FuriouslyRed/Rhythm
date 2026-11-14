@@ -1113,7 +1113,10 @@ object MediaUtils {
         }
 
         val codecValue = audioFormatInfo?.codec ?: song.codec ?: format
-        val bitDepthValue = audioFormatInfo?.bitDepth ?: 0
+        // Bits per sample: the probed file wins, then the server's value. The
+        // estimate is only used for display when neither knows, which keeps
+        // local files behaving exactly as before.
+        val bitDepthValue = audioFormatInfo?.bitDepth?.takeIf { it > 0 } ?: song.bitDepth ?: 0
 
         val audioQuality = AudioQualityDetector.detectQuality(
             codec = codecValue,
@@ -1150,7 +1153,7 @@ object MediaUtils {
             qualityType = audioQuality.qualityType.name,
             qualityLabel = audioQuality.qualityLabel,
             qualityDescription = audioQuality.qualityDescription,
-            bitDepth = audioQuality.bitDepthEstimate,
+            bitDepth = bitDepthValue.takeIf { it > 0 } ?: audioQuality.bitDepthEstimate,
             qualityCategory = audioQuality.category
         )
     }

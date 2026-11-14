@@ -26,6 +26,23 @@ object MediaItemFactory {
     const val EXTRA_ORIGINAL_ARTIST = "chromahub.rhythm.app.extra.original_artist"
     const val EXTRA_ORIGINAL_ALBUM = "chromahub.rhythm.app.extra.original_album"
 
+    // Audio facts travel with the MediaItem so a Song rebuilt from it (queue
+    // restore, service, File Info) keeps the server-reported values instead of
+    // degrading to nulls.
+    const val EXTRA_BITRATE = "chromahub.rhythm.app.extra.bitrate"
+    const val EXTRA_SAMPLE_RATE = "chromahub.rhythm.app.extra.sample_rate"
+    const val EXTRA_BIT_DEPTH = "chromahub.rhythm.app.extra.bit_depth"
+    const val EXTRA_CHANNELS = "chromahub.rhythm.app.extra.channels"
+    const val EXTRA_CODEC = "chromahub.rhythm.app.extra.codec"
+
+    private fun audioExtras(song: Song): Bundle = Bundle().apply {
+        song.bitrate?.let { putInt(EXTRA_BITRATE, it) }
+        song.sampleRate?.let { putInt(EXTRA_SAMPLE_RATE, it) }
+        song.bitDepth?.let { putInt(EXTRA_BIT_DEPTH, it) }
+        song.channels?.let { putInt(EXTRA_CHANNELS, it) }
+        song.codec?.takeIf { it.isNotBlank() }?.let { putString(EXTRA_CODEC, it) }
+    }
+
     fun fromSong(song: Song, includeQuality: Boolean): MediaItem {
         val extension = song.path?.substringAfterLast('.', "")?.lowercase() ?: ""
         val mimeType = mimeTypeForExtension(extension)
@@ -43,7 +60,7 @@ object MediaItemFactory {
                     .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
                     .setIsBrowsable(false)
                     .setIsPlayable(true)
-                    .setExtras(originalMetadataExtras(song.title, song.artist, song.album))
+                    .setExtras(originalMetadataExtras(song.title, song.artist, song.album).apply { putAll(audioExtras(song)) })
                     .build()
             )
             .build()

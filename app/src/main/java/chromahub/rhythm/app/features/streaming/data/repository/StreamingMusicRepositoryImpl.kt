@@ -57,6 +57,8 @@ import kotlinx.coroutines.flow.drop
  */
 data class StreamingCatalogCache(
     val serviceId: String,
+    /** Bumped whenever the cached song shape gains fields worth refetching. */
+    val schemaVersion: Int = 0,
     val songs: List<StreamingSong> = emptyList(),
     val albums: List<StreamingAlbum> = emptyList(),
     val artists: List<StreamingArtist> = emptyList(),
@@ -305,6 +307,9 @@ class StreamingMusicRepositoryImpl(
 
             val cache = catalogCacheCodec(serviceId).readFile(cacheFile) ?: return
             if (cache.serviceId != serviceId) return
+            // A cache written before audio metadata was parsed has no
+            // sampleRate/bitDepth; drop it so the catalog is refetched.
+            if (cache.schemaVersion < CACHE_SCHEMA_VERSION) return
 
             if (cache.songs.isNotEmpty()) {
                 songCache.clear()
@@ -370,6 +375,7 @@ class StreamingMusicRepositoryImpl(
 
                     val cache = StreamingCatalogCache(
                         serviceId = serviceId,
+                        schemaVersion = CACHE_SCHEMA_VERSION,
                         songs = currentSongs,
                         albums = currentAlbums,
                         artists = currentArtists,
@@ -1946,6 +1952,7 @@ class StreamingMusicRepositoryImpl(
             genre = providerSong.genre,
             bitrate = providerSong.bitrate,
             sampleRate = providerSong.sampleRate,
+            bitDepth = providerSong.bitDepth,
             channels = providerSong.channels,
             codec = providerSong.codec
         )
@@ -2564,6 +2571,8 @@ class StreamingMusicRepositoryImpl(
     private companion object {
         private const val SEARCH_LIMIT = 100
         private const val MAX_CACHE_SIZE = 4000
+        /** Bump when the cached song payload gains fields that need a refetch. */
+        private const val CACHE_SCHEMA_VERSION = 1
 
         /** Compiled once; normalizeKey() runs per artist during catalog mapping. */
         private val WHITESPACE_REGEX = "\\s+".toRegex()

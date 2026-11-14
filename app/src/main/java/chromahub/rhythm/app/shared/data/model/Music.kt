@@ -32,6 +32,7 @@ data class Song(
     // Audio quality metadata
     val bitrate: Int? = null, // Bitrate in bps
     val sampleRate: Int? = null, // Sample rate in Hz
+    val bitDepth: Int? = null, // Bits per sample (16, 24, 32)
     val channels: Int? = null, // Number of audio channels (1=mono, 2=stereo, 6=5.1, etc.)
     val codec: String? = null, // Audio codec (AAC, MP3, FLAC, etc.)
     val discNumber: Int = 1, // Multi-disc support

@@ -5018,6 +5018,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             ?: metadata.artist?.toString().orEmpty().ifBlank { "Unknown Artist" }
         val album = metadata.albumTitle?.toString().orEmpty().ifBlank { "Unknown Album" }
 
+        // Rebuild the audio facts from the MediaItem extras written by
+        // MediaItemFactory; without this a streamed Song loses everything the
+        // server told us.
+        val extras = metadata.extras
+        fun intExtra(key: String): Int? = extras?.getInt(key, 0)?.takeIf { it > 0 }
+
         return Song(
             id = if (mediaId.isNotBlank()) mediaId else "external_${title.hashCode()}",
             title = title,
@@ -5034,10 +5040,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             genre = null,
             dateAdded = System.currentTimeMillis(),
             albumArtist = null,
-            bitrate = null,
-            sampleRate = null,
-            channels = null,
-            codec = null,
+            bitrate = intExtra(MediaItemFactory.EXTRA_BITRATE),
+            sampleRate = intExtra(MediaItemFactory.EXTRA_SAMPLE_RATE),
+            bitDepth = intExtra(MediaItemFactory.EXTRA_BIT_DEPTH),
+            channels = intExtra(MediaItemFactory.EXTRA_CHANNELS),
+            codec = extras?.getString(MediaItemFactory.EXTRA_CODEC)?.takeIf { it.isNotBlank() },
             discNumber = 1
         )
     }

@@ -71,6 +71,7 @@ import androidx.media3.common.AudioAttributes as ExoAudioAttributes
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import chromahub.rhythm.app.util.GsonUtils
+import chromahub.rhythm.app.util.MediaItemFactory
 import chromahub.rhythm.app.shared.data.model.Playlist
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -2950,7 +2951,12 @@ notificationManager.createNotificationChannel(sleepTimerChannel)
                 year = 0,
                 genre = "",
                 albumId = "",
-                albumArtist = mediaItem.mediaMetadata.albumArtist?.toString()
+                albumArtist = mediaItem.mediaMetadata.albumArtist?.toString(),
+                bitrate = extras?.getInt(MediaItemFactory.EXTRA_BITRATE, 0)?.takeIf { it > 0 },
+                sampleRate = extras?.getInt(MediaItemFactory.EXTRA_SAMPLE_RATE, 0)?.takeIf { it > 0 },
+                bitDepth = extras?.getInt(MediaItemFactory.EXTRA_BIT_DEPTH, 0)?.takeIf { it > 0 },
+                channels = extras?.getInt(MediaItemFactory.EXTRA_CHANNELS, 0)?.takeIf { it > 0 },
+                codec = extras?.getString(MediaItemFactory.EXTRA_CODEC)?.takeIf { it.isNotBlank() }
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error converting MediaItem to Song", e)

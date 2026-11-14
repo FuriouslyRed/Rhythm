@@ -334,6 +334,7 @@ private fun StreamingSong.toLocalSong(): Song? {
         genre = genre,
         bitrate = bitrate,
         sampleRate = sampleRate,
+        bitDepth = bitDepth,
         channels = channels,
         codec = codec
     )
@@ -361,6 +362,7 @@ private fun StreamingSong.toDisplaySong(): Song {
         genre = genre,
         bitrate = bitrate,
         sampleRate = sampleRate,
+        bitDepth = bitDepth,
         channels = channels,
         codec = codec
     )

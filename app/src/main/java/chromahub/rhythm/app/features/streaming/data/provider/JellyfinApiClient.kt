@@ -1063,6 +1063,7 @@ class JellyfinApiClient(context: Context) {
                 val codecVal = firstSource?.optString("Container")?.takeIf { it.isNotBlank() }
 
                 val mediaStreams = firstSource?.optJSONArray("MediaStreams")
+                var bitDepthVal: Int? = null
                 var sampleRateVal: Int? = null
                 var channelsVal: Int? = null
                 if (mediaStreams != null) {
@@ -1071,6 +1072,7 @@ class JellyfinApiClient(context: Context) {
                         if (stream?.optString("Type") == "Audio") {
                             sampleRateVal = stream.optInt("SampleRate", 0).takeIf { it > 0 }
                             channelsVal = stream.optInt("Channels", 0).takeIf { it > 0 }
+                            bitDepthVal = stream.optInt("BitDepth", 0).takeIf { it > 0 }
                             break
                         }
                     }
@@ -1097,6 +1099,7 @@ class JellyfinApiClient(context: Context) {
                         genre = genreVal,
                         bitrate = bitrateVal,
                         sampleRate = sampleRateVal,
+                        bitDepth = bitDepthVal,
                         channels = channelsVal,
                         codec = codecVal
                     )

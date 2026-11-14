@@ -2268,7 +2268,14 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
             duration = duration,
             uri = playbackUri,
             artworkUri = artworkUri?.takeIf { it.isNotBlank() }?.let(Uri::parse),
-            albumArtist = albumArtist
+            albumArtist = albumArtist,
+            // Server-reported source metadata (OpenSubsonic Child fields), so
+            // File Info has real values for tracks that are not on disk.
+            bitrate = bitrate,
+            sampleRate = sampleRate,
+            bitDepth = bitDepth,
+            channels = channels,
+            codec = codec
         )
     }
 }

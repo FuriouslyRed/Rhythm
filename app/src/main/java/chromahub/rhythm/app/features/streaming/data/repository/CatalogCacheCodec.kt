@@ -114,6 +114,7 @@ internal class CatalogCacheCodec(private val urlRefs: CatalogUrlRefs = CatalogUr
             song.genre?.let { out.name("g").value(it) }
             song.bitrate?.let { out.name("br").value(it) }
             song.sampleRate?.let { out.name("sr").value(it) }
+            song.bitDepth?.let { out.name("bd").value(it) }
             song.channels?.let { out.name("ch").value(it) }
             song.codec?.let { out.name("c").value(it) }
             out.endObject()
@@ -128,6 +129,7 @@ internal class CatalogCacheCodec(private val urlRefs: CatalogUrlRefs = CatalogUr
             var albumId: String? = null; var albumArtist: String? = null; var isrc: String? = null
             var isFavorite = false; var trackNumber: Int? = null; var year: Int? = null
             var genre: String? = null; var bitrate: Int? = null; var sampleRate: Int? = null
+            var bitDepth: Int? = null
             var channels: Int? = null; var codec: String? = null; var compact = false
 
             reader.beginObject()
@@ -162,6 +164,7 @@ internal class CatalogCacheCodec(private val urlRefs: CatalogUrlRefs = CatalogUr
                     "g", "genre" -> genre = reader.nextString()
                     "br", "bitrate" -> bitrate = reader.nextInt()
                     "sr", "sampleRate" -> sampleRate = reader.nextInt()
+                    "bd", "bitDepth" -> bitDepth = reader.nextInt()
                     "ch", "channels" -> channels = reader.nextInt()
                     "c", "codec" -> codec = reader.nextString()
                     else -> reader.skipValue()
@@ -196,6 +199,7 @@ internal class CatalogCacheCodec(private val urlRefs: CatalogUrlRefs = CatalogUr
                 genre = genre,
                 bitrate = bitrate,
                 sampleRate = sampleRate,
+                bitDepth = bitDepth,
                 channels = channels,
                 codec = codec
             )
