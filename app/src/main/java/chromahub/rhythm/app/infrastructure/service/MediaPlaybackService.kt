@@ -79,6 +79,7 @@ import chromahub.rhythm.app.util.AudioQualityDetector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(UnstableApi::class)
 class MediaPlaybackService : MediaLibraryService(), Player.Listener {
@@ -956,7 +957,11 @@ notificationManager.createNotificationChannel(sleepTimerChannel)
         )
         rhythmPlayerEngine.initialize()
         serviceScope.launch {
-            rhythmPlayerEngine.currentEngineFormat.collect {
+            // The engine emits the outgoing track's format during a transition, so
+            // wait for it to settle before publishing; otherwise telemetry (and the
+            // artist suffix built from it) is attributed to the incoming item.
+            rhythmPlayerEngine.currentEngineFormat.collectLatest {
+                delay(400)
                 updatePlaybackQuality()
             }
         }
@@ -3039,6 +3044,7 @@ notificationManager.createNotificationChannel(sleepTimerChannel)
             }
 
             val qualityInfo = PlaybackQualityInfo(
+                mediaId = mediaItem?.mediaId,
                 sourceCodec = sourceCodec,
                 sourceBitrateKbps = sourceBitrate,
                 sourceSampleRateHz = sourceSampleRate,

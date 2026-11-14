@@ -84,4 +84,76 @@ class NowPlayingMetadataTest {
     fun `artist whitespace is trimmed`() {
         assertEquals("Nirvana • Hi-Res", NowPlayingMetadata.artistWithQuality("  Nirvana ", "Hi-Res"))
     }
+
+    private fun info(
+        type: AudioQualityDetector.QualityType,
+        label: String = "FLAC",
+        lossless: Boolean = false,
+        hiRes: Boolean = false,
+        dolby: Boolean = false,
+        dts: Boolean = false
+    ) = chromahub.rhythm.app.shared.data.model.PlaybackQualityInfo(
+        qualityType = type,
+        qualityLabel = label,
+        isLossless = lossless,
+        isHiRes = hiRes,
+        isDolby = dolby,
+        isDTS = dts
+    )
+
+    @Test
+    fun `decoder telemetry drives the label the badge shows`() {
+        assertEquals(
+            "Lossless",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.CD_QUALITY_LOSSLESS, lossless = true)
+            )
+        )
+        assertEquals(
+            "Hi-Res",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.HI_RES_LOSSLESS, lossless = true, hiRes = true)
+            )
+        )
+        assertEquals(
+            "Studio Master",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.HI_RES_STUDIO_MASTER, lossless = true, hiRes = true)
+            )
+        )
+        assertEquals(
+            "Lossy",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.LOSSY_COMPRESSED, label = "MP3 320kbps")
+            )
+        )
+        assertEquals(
+            "Dolby Atmos",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.DOLBY_ATMOS, dolby = true)
+            )
+        )
+        assertEquals(
+            "DTS:X",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.DTS_SURROUND, label = "DTS:X", dts = true)
+            )
+        )
+        assertEquals(
+            "DSD",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.DSD_HIGH_RES, label = "DSD64")
+            )
+        )
+    }
+
+    @Test
+    fun `empty telemetry yields no suffix`() {
+        assertEquals(
+            "",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.UNKNOWN, label = "")
+            )
+        )
+    }
 }

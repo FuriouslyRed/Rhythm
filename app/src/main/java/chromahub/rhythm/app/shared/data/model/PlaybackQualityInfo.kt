@@ -18,6 +18,8 @@ import java.util.Locale
  */
 @Parcelize
 data class PlaybackQualityInfo(
+    /** Media id this telemetry was measured for, so consumers can attribute it. */
+    val mediaId: String? = null,
     val sourceCodec: String = "",
     val sourceBitrateKbps: Int = 0,
     val sourceSampleRateHz: Int = 0,

@@ -6,6 +6,7 @@
 package chromahub.rhythm.app.util
 
 import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.model.PlaybackQualityInfo
 
 /**
  * Builds the artist line that system surfaces read from the media session —
@@ -69,6 +70,27 @@ object NowPlayingMetadata {
         bitrateBps = song.bitrate,
         channelCount = song.channels
     )
+
+    /**
+     * Short label from the decoder telemetry that also feeds the audio-quality
+     * badge, so the artist line matches what the badge sheet reports.
+     */
+    fun labelFor(info: PlaybackQualityInfo): String = when {
+        info.qualityType == AudioQualityDetector.QualityType.DOLBY_ATMOS -> "Dolby Atmos"
+        info.qualityType == AudioQualityDetector.QualityType.DOLBY_LOSSLESS -> "Dolby TrueHD"
+        info.isDolby && info.qualityLabel.isNotBlank() -> info.qualityLabel
+        info.isDTS -> when {
+            info.qualityLabel.contains("X", ignoreCase = true) -> "DTS:X"
+            info.isLossless -> "DTS-HD MA"
+            else -> "DTS"
+        }
+        info.qualityType == AudioQualityDetector.QualityType.DSD_HIGH_RES -> "DSD"
+        info.qualityType == AudioQualityDetector.QualityType.HI_RES_STUDIO_MASTER -> "Studio Master"
+        info.isLossless && info.isHiRes -> "Hi-Res"
+        info.isLossless -> "Lossless"
+        info.qualityLabel.isNotBlank() -> "Lossy"
+        else -> ""
+    }
 
     /** Joins an artist and a quality label with the bullet separator. */
     fun artistWithQuality(artist: String, qualityLabel: String): String {

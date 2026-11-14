@@ -1229,6 +1229,15 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 refreshNowPlayingArtistMetadata()
             }
         }
+
+        // Upgrade the suffix when the decoder publishes telemetry: null means the
+        // service cleared it for a transition, so ignore those to avoid downgrading
+        // to the tag-based guess and flapping between the two.
+        viewModelScope.launch {
+            MediaPlaybackService.currentPlaybackQuality.collect { quality ->
+                if (quality != null) refreshNowPlayingArtistMetadata()
+            }
+        }
         
         // Single coroutine for main initialization to ensure proper ordering
         viewModelScope.launch {
@@ -4813,11 +4822,18 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      * Bluetooth). Keeps the plain artist unless the "quality in artist" setting
      * is on, in which case it becomes "Artist • Hi-Res" and friends.
      */
-    private fun nowPlayingArtist(song: Song): String =
-        NowPlayingMetadata.displayArtist(
-            song = song,
-            includeQuality = appSettings.playerQualityInNowPlayingArtist.value
-        )
+    private fun nowPlayingArtist(song: Song): String {
+        if (!appSettings.playerQualityInNowPlayingArtist.value) return song.artist
+
+        // Prefer the decoder telemetry the quality badge shows; fall back to the
+        // file's own tags while telemetry is not available yet.
+        val live = MediaPlaybackService.currentPlaybackQuality.value
+            ?.takeIf { it.mediaId == song.id }
+        val label = live?.let { NowPlayingMetadata.labelFor(it) }
+            .orEmpty()
+            .ifBlank { NowPlayingMetadata.qualityLabel(song) }
+        return NowPlayingMetadata.artistWithQuality(song.artist, label)
+    }
 
     /** Same as [nowPlayingArtist], but for the Bluetooth-lyrics "title - artist" form. */
     private fun nowPlayingArtistWithTitle(song: Song): String {
@@ -4841,8 +4857,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         if (item.mediaId != song.id) return
 
         try {
+            val artist = nowPlayingArtist(song)
+
+            // Replacing the item fires onMediaItemTransition in the service, which
+            // republishes telemetry; without this guard the two ping-pong forever.
+            if (item.mediaMetadata.artist?.toString() == artist) return
+
             val metadata = item.mediaMetadata.buildUpon()
-                .setArtist(nowPlayingArtist(song))
+                .setArtist(artist)
                 .setExtras(buildCanonicalMetadataExtras(song, item.mediaMetadata.extras))
                 .build()
             controller.replaceMediaItem(index, item.buildUpon().setMediaMetadata(metadata).build())
