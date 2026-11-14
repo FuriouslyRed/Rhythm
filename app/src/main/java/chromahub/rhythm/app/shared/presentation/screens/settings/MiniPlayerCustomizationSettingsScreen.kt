@@ -179,6 +179,8 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
     val miniPlayerProgressStyle by appSettings.miniPlayerProgressStyle.collectAsState()
     val miniPlayerShowProgress by appSettings.miniPlayerShowProgress.collectAsState()
     val miniPlayerShowArtwork by appSettings.miniPlayerShowArtwork.collectAsState()
+    val miniPlayerQualityBadge by appSettings.miniPlayerQualityBadge.collectAsState()
+    val playerShowAudioQualityBadges by appSettings.playerShowAudioQualityBadges.collectAsState()
     val miniPlayerArtworkSize by appSettings.miniPlayerArtworkSize.collectAsState()
     val miniPlayerCornerRadius by appSettings.miniPlayerCornerRadius.collectAsState()
     val miniPlayerShowTime by appSettings.miniPlayerShowTime.collectAsState()
@@ -361,6 +363,19 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 description = if (isExpressiveActive) context.getString(R.string.lyrics_settings_not_supported_expressive) else "${miniPlayerArtworkSize}dp",
                                 onClick = { showMiniPlayerArtworkSizeSheet = true },
                                 enabled = !isExpressiveActive
+                            )
+                        ),
+                        toMaterial3SettingsItem(
+                            context = context,
+                            hapticFeedback = haptics,
+                            item = SettingItem(
+                                icon = MaterialSymbolIcon("high_quality"),
+                                title = context.getString(R.string.settings_miniplayer_quality_badge),
+                                description = context.getString(R.string.settings_miniplayer_quality_badge_desc),
+                                toggleState = miniPlayerQualityBadge,
+                                onToggleChange = { appSettings.setMiniPlayerQualityBadge(it) },
+                                // Same master switch as the in-player badge.
+                                enabled = playerShowAudioQualityBadges
                             )
                         ),
                         toMaterial3SettingsItem(

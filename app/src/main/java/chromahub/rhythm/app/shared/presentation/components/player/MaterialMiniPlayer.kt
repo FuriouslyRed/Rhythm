@@ -75,6 +75,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.infrastructure.service.MediaPlaybackService
+import chromahub.rhythm.app.shared.presentation.components.AudioQualityIcon
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.presentation.components.player.formatDuration
 import chromahub.rhythm.app.ui.theme.PlayerButtonColor
@@ -149,6 +151,10 @@ fun MaterialMiniPlayer(
 ) {
     val context = LocalContext.current
     val appSettings = remember { AppSettings.getInstance(context) }
+    val miniQualityBadge by appSettings.miniPlayerQualityBadge.collectAsState()
+    val audioQualityBadgesOn by appSettings.playerShowAudioQualityBadges.collectAsState()
+    val miniPlaybackQuality by MediaPlaybackService.currentPlaybackQuality.collectAsState()
+    val showMiniQualityBadge = miniQualityBadge && audioQualityBadgesOn
     val useHoursFormat by appSettings.useHoursInTimeFormat.collectAsState()
     val isTablet = windowScreenWidthDp() >= 600
     val isCompactHeight = windowScreenHeightDp() < 500
@@ -689,15 +695,27 @@ fun MaterialMiniPlayer(
 
                                 Spacer(modifier = Modifier.height(2.dp))
 
-                                Text(
-                                    text = song.artist,
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontSize = 12.sp
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = song.artist,
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontSize = 12.sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f, fill = false)
+                                    )
+                                    if (showMiniQualityBadge) {
+                                        AudioQualityIcon(
+                                            song = song,
+                                            playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
+                                            iconSize = 16.dp,
+                                            padding = 0.dp,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
 
                                 if (miniPlayerShowProgress) {
                                     Spacer(modifier = Modifier.height(6.dp))
@@ -903,6 +921,15 @@ fun MaterialMiniPlayer(
                                         modifier = Modifier.weight(1f, fill = false),
                                         enabled = true
                                     )
+                                    if (showMiniQualityBadge) {
+                                        AudioQualityIcon(
+                                            song = song,
+                                            playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
+                                            iconSize = 16.dp,
+                                            padding = 0.dp,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 } else {
                                     Text(
                                         text = "",

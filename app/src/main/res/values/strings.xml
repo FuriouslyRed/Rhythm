@@ -1465,6 +1465,8 @@
     <string name="settings_show_progress_desc">Display progress indicator</string>
     <string name="settings_show_artwork">Show Artwork</string>
     <string name="settings_show_artwork_desc">Display album artwork</string>
+    <string name="settings_miniplayer_quality_badge">Quality Badge In Mini Player</string>
+    <string name="settings_miniplayer_quality_badge_desc">Show a miniature audio quality badge next to the artist</string>
     <string name="settings_show_time">Show Time</string>
     <string name="settings_show_time_desc">Display playback time</string>
     <string name="settings_tablet_layout">Tablet Layout on Phone</string>

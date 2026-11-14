@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.sp
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.infrastructure.service.MediaPlaybackService
+import chromahub.rhythm.app.shared.presentation.components.AudioQualityIcon
 import chromahub.rhythm.app.shared.presentation.components.common.AutoScrollingTextOnDemand
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
 import chromahub.rhythm.app.shared.presentation.components.common.ShimmerBox
@@ -82,6 +84,10 @@ fun ExpressiveMiniPlayer(
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val appSettings = remember { AppSettings.getInstance(context) }
+    val miniQualityBadge by appSettings.miniPlayerQualityBadge.collectAsState()
+    val audioQualityBadgesOn by appSettings.playerShowAudioQualityBadges.collectAsState()
+    val miniPlaybackQuality by MediaPlaybackService.currentPlaybackQuality.collectAsState()
+    val showMiniQualityBadge = miniQualityBadge && audioQualityBadgesOn
 
     val miniPlayerSwipeGestures by appSettings.miniPlayerSwipeGestures.collectAsState()
     val miniPlayerSwipeTracks by appSettings.miniPlayerSwipeTracks.collectAsState()
@@ -479,18 +485,29 @@ fun ExpressiveMiniPlayer(
                                 respectGlobalSetting = true
                             )
                             Spacer(modifier = Modifier.height(2.dp))
-                            AutoScrollingTextOnDemand(
-                                text = song.artist,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                ),
-                                modifier = Modifier.fillMaxWidth(),
-                                gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                                enabled = true,
-                                textAlign = TextAlign.Start,
-                                respectGlobalSetting = true
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                AutoScrollingTextOnDemand(
+                                    text = song.artist,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    ),
+                                    modifier = Modifier.weight(1f),
+                                    gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
+                                    enabled = true,
+                                    textAlign = TextAlign.Start,
+                                    respectGlobalSetting = true
+                                )
+                                if (showMiniQualityBadge) {
+                                    AudioQualityIcon(
+                                        song = song,
+                                        playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
+                                        iconSize = 16.dp,
+                                        padding = 0.dp,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                         } else {
                             Text(
                                 text = context.getString(R.string.miniplayer_no_song),
@@ -640,18 +657,29 @@ fun ExpressiveMiniPlayer(
                                     textAlign = TextAlign.Start,
                                     respectGlobalSetting = true
                                 )
-                                AutoScrollingTextOnDemand(
-                                    text = song.artist,
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontSize = 13.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    ),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                                    enabled = true,
-                                    textAlign = TextAlign.Start,
-                                    respectGlobalSetting = true
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    AutoScrollingTextOnDemand(
+                                        text = song.artist,
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontSize = 13.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        ),
+                                        modifier = Modifier.weight(1f),
+                                        gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
+                                        enabled = true,
+                                        textAlign = TextAlign.Start,
+                                        respectGlobalSetting = true
+                                    )
+                                    if (showMiniQualityBadge) {
+                                        AudioQualityIcon(
+                                            song = song,
+                                            playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
+                                            iconSize = 16.dp,
+                                            padding = 0.dp,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
                             } else {
                                 Text(
                                     text = context.getString(R.string.miniplayer_no_song),
