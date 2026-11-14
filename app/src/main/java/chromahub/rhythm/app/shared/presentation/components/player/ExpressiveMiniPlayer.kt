@@ -34,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -504,6 +505,7 @@ fun ExpressiveMiniPlayer(
                                         playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
                                         iconSize = 16.dp,
                                         padding = 0.dp,
+shape = RectangleShape,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
@@ -676,6 +678,7 @@ fun ExpressiveMiniPlayer(
                                             playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
                                             iconSize = 16.dp,
                                             padding = 0.dp,
+shape = RectangleShape,
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }

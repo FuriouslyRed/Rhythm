@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -162,6 +163,9 @@ fun AudioQualityIcon(
     iconSize: Dp = 32.dp,
     padding: Dp = 8.dp,
     tint: Color? = null,
+    // Circle by default (tap target); pass RectangleShape where the icon is a
+    // static marker so the vector's corners are not clipped.
+    shape: Shape = CircleShape,
     // When > 0, the icon fades in once quality is detected, stays visible for this long, then fades out.
     // Default 0 keeps the icon visible persistently (existing behavior for other screens).
     autoHideAfterMs: Long = 0L,
@@ -249,7 +253,7 @@ fun AudioQualityIcon(
                         painter = painterResource(id = res),
                         contentDescription = quality.qualityLabel,
                         modifier = Modifier
-                            .clip(CircleShape)
+                            .clip(shape)
                             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
                             .padding(padding)
                             .size(iconSize),
