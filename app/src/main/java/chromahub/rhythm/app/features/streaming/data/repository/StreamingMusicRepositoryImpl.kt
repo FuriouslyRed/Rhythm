@@ -209,6 +209,11 @@ class StreamingMusicRepositoryImpl(
                         reconciledList.add(localSong)
                     }
                 }
+                android.util.Log.d(
+                    "RhythmDownloads",
+                    "index=${list.size} reconciled=${reconciledList.size} " +
+                        "audioFiles=${downloadDirectory.listFiles()?.count { it.extension.lowercase() in setOf("mp3", "flac", "m4a", "aac", "ogg", "opus", "wav", "wma", "webm") }}"
+                )
                 downloadedSongsFlow.value = reconciledList
                 if (reconciledList.size != list.size) {
                     saveDownloadedSongsIndex()

@@ -3380,6 +3380,26 @@ fun LibrarySongItem(
                 )
             }
             
+            if (isDownloaded) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 3.dp, y = 3.dp)
+                        .size(18.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = MaterialSymbolIcon("check"),
+                            contentDescription = stringResource(R.string.streaming_downloaded),
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
+            }
+
             if (isSelected) {
                 Box(
                     modifier = Modifier
@@ -3453,14 +3473,7 @@ fun LibrarySongItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                if (isDownloaded) {
-                    Icon(
-                        imageVector = MaterialSymbolIcon("download_for_offline", filled = true),
-                        contentDescription = stringResource(R.string.streaming_downloaded),
-                        tint = if (isCurrentSong && !isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(14.dp)
-                    )
-                } else if (isDownloading) {
+                if (isDownloading) {
                     val infiniteTransition = rememberInfiniteTransition(label = "downloadIconTransition")
                     val rotation by infiniteTransition.animateFloat(
                         initialValue = 0f,
