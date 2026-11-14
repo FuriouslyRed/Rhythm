@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Red flavor branding. Overrides the shared app_name so the launcher,
+     notification channel names and About screen all read "Rhythm Red". -->
+<resources>
+    <string name="app_name">Rhythm Red</string>
+    <string name="settings_about_music_player">Music Player • Red Edition</string>
+</resources>

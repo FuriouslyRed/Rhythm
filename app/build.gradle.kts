@@ -57,11 +57,10 @@ android {
     // Product flavors for different distribution channels
     flavorDimensions += "distribution"
 
-    // Personal build identity. Defaults to a separate package so a personal build
-    // can sit next to the Play/GitHub install; pass -PpersonalAppId=chromahub.rhythm.app
-    // to replace the official app instead (needs one uninstall, since the signing key differs).
-    val personalApplicationId = project.findProperty("personalAppId")?.toString()
-        ?: "chromahub.rhythm.app.personal"
+    // Red build identity — this fork's own package, independent of the
+    // Play/GitHub install so it can be distributed separately later.
+    val redApplicationId = project.findProperty("redAppId")?.toString()
+        ?: "furiouslyred.rhythmred.app"
 
     productFlavors {
         create("fdroid") {
@@ -102,11 +101,11 @@ android {
             versionNameSuffix = "-gh"
         }
 
-        create("personal") {
+        create("red") {
             dimension = "distribution"
-            applicationId = personalApplicationId
+            applicationId = redApplicationId
 
-            // Personal build: full feature set, same as GitHub/F-Droid.
+            // Red build: full feature set, same as GitHub/F-Droid.
             buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "true")
             buildConfigField("boolean", "ENABLE_LYRICALLY_API", "true")
             buildConfigField("boolean", "ENABLE_DEEZER", "true")
@@ -114,12 +113,12 @@ android {
             buildConfigField("boolean", "ENABLE_BETTERLYRICS", "true")
             buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "true")
             buildConfigField("boolean", "ENABLE_WIKIPEDIA", "true")
-            buildConfigField("String", "FLAVOR", "\"personal\"")
+            buildConfigField("String", "FLAVOR", "\"red\"")
             // Self-signed with a private key: upstream release APKs can never
             // install over this build, so update prompts are off by default.
             buildConfigField("boolean", "UPDATES_DEFAULT_ENABLED", "false")
 
-            versionNameSuffix = "-personal"
+            versionNameSuffix = "-red"
         }
     }
 

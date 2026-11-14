@@ -377,13 +377,36 @@ fun AboutScreen(
                     modifier = Modifier.padding(bottom = 8.dp, top = 18.dp)
                 )
 
+                val isRedBuild = BuildConfig.FLAVOR == "red"
+
+                if (isRedBuild) {
+                    DeveloperCard(
+                        name = "FuriouslyRed",
+                        githubUsername = "FuriouslyRed",
+                        avatarUrl = "https://github.com/FuriouslyRed.png",
+                        supportUrl = "https://github.com/FuriouslyRed",
+                        teamTitle = "Lead Developer",
+                        teamDescription = "Rhythm Red — personal fork, bug fixes and new features",
+                        openUrl = openUrl
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
                 DeveloperCard(
                     name = "Anjishnu Nandi",
                     githubUsername = "cromaguy",
                     avatarUrl = "https://github.com/cromaguy.png",
                     supportUrl = "https://ko-fi.com/anjishnunandi",
-                    teamTitle = context.getString(R.string.settings_about_team_chromahub),
-                    teamDescription = context.getString(R.string.settings_about_team_desc),
+                    teamTitle = if (isRedBuild) {
+                        "Original Rhythm developer"
+                    } else {
+                        context.getString(R.string.settings_about_team_chromahub)
+                    },
+                    teamDescription = if (isRedBuild) {
+                        "Created Rhythm, the upstream project this build is based on"
+                    } else {
+                        context.getString(R.string.settings_about_team_desc)
+                    },
                     openUrl = openUrl
                 )
             }
