@@ -6397,8 +6397,17 @@ fun isRegularLossless(song: Song): Boolean {
     return true
 }
 
+/** Formats that only name a container, never the audio codec inside it. */
+private val CONTAINER_CODECS = setOf("M4A", "MP4", "M4B", "MOV", "MKA", "MKV", "WEBM")
+
 fun isDolbyOrSurround(song: Song): Boolean {
     val codec = song.codec?.uppercase() ?: ""
+    // Container codecs say nothing about their payload: an m4a carrying E-AC-3
+    // with Atmos objects reports as "m4a", 2 channels, 768 kbps. That bitrate
+    // is the JOC signature, so treat high-bitrate MP4-family files as surround.
+    val isContainer = codec in CONTAINER_CODECS
+    val bitrate = song.bitrate ?: 0
+    if (isContainer && bitrate >= 700_000) return true
     return (song.channels ?: 2) > 2 ||
            codec.contains("AC-3") ||
            codec.contains("AC3") ||
