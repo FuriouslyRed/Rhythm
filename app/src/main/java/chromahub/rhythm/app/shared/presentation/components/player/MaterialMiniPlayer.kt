@@ -713,7 +713,7 @@ fun MaterialMiniPlayer(
                                             playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
                                             iconSize = 16.dp,
                                             padding = 0.dp,
-                                            shape = RectangleShape,
+shape = RectangleShape,
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
@@ -923,6 +923,16 @@ fun MaterialMiniPlayer(
                                         modifier = Modifier.weight(1f, fill = false),
                                         enabled = true
                                     )
+                                    if (showMiniQualityBadge && !miniPlayerShowTime) {
+                                        AudioQualityIcon(
+                                            song = song,
+                                            playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
+                                            iconSize = 16.dp,
+                                            padding = 0.dp,
+shape = RectangleShape,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 } else {
                                     Text(
                                         text = "",
@@ -937,57 +947,43 @@ fun MaterialMiniPlayer(
                                     )
                                 }
 
-                                // Time / quality chip. The badge rides inside the
-                                // same container so it never moves, and the chip
-                                // stays put when the time readout is disabled.
-                                if (song != null && ((miniPlayerShowTime && progress() > 0) || showMiniQualityBadge)) {
+                                // Compact time indicator - controlled by setting
+                                if (miniPlayerShowTime && song != null && progress() > 0) {
                                     Surface(
-                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                            alpha = 0.6f
+                                        ),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
+                                        Text(
+                                            text = "${
+                                                formatDuration(
+                                                    (progress() * song.duration).toLong(),
+                                                    useHoursFormat
+                                                )
+                                            }/${formatDuration(song.duration, useHoursFormat)}",
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = if (isCompactHeight) 8.sp else 10.sp
+                                            ),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                                             modifier = Modifier.padding(
-                                                start = if (isCompactHeight) 4.dp else 6.dp,
-                                                top = if (isCompactHeight) 1.dp else 2.dp,
-                                                bottom = if (isCompactHeight) 1.dp else 2.dp,
-                                                end = if (showMiniQualityBadge) {
-                                                    if (isCompactHeight) 2.dp else 3.dp
-                                                } else {
-                                                    if (isCompactHeight) 4.dp else 6.dp
-                                                }
+                                                horizontal = if (isCompactHeight) 4.dp else 6.dp,
+                                                vertical = if (isCompactHeight) 1.dp else 2.dp
                                             )
-                                        ) {
-                                            if (miniPlayerShowTime && progress() > 0) {
-                                                Text(
-                                                    text = "${
-                                                        formatDuration(
-                                                            (progress() * song.duration).toLong(),
-                                                            useHoursFormat
-                                                        )
-                                                    }/${formatDuration(song.duration, useHoursFormat)}",
-                                                    style = MaterialTheme.typography.labelSmall.copy(
-                                                        fontWeight = FontWeight.Medium,
-                                                        fontSize = if (isCompactHeight) 8.sp else 10.sp
-                                                    ),
-                                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                    modifier = Modifier.padding(
-                                                        end = if (showMiniQualityBadge) 3.dp else 0.dp
-                                                    )
-                                                )
-                                            }
-                                            if (showMiniQualityBadge) {
-                                                AudioQualityIcon(
-                                                    song = song,
-                                                    playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
-                                                    iconSize = if (isCompactHeight) 12.dp else 14.dp,
-                                                    padding = 0.dp,
-                                                    shape = RectangleShape,
-                                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                                )
-                                            }
-                                        }
+                                        )
                                     }
+                                }
+                                // Fixed slot so the artist line never reflows
+                                if (showMiniQualityBadge && miniPlayerShowTime && song != null) {
+                                    AudioQualityIcon(
+                                        song = song,
+                                        playbackQuality = miniPlaybackQuality?.takeIf { it.mediaId == song.id },
+                                        iconSize = 16.dp,
+                                        padding = 0.dp,
+shape = RectangleShape,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
                         }
