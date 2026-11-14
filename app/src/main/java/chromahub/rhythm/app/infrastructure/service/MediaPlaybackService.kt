@@ -3031,9 +3031,19 @@ notificationManager.createNotificationChannel(sleepTimerChannel)
                 }
             }
 
-            val sourceCodec = song?.codec?.takeIf { it.isNotBlank() }
-                ?: engineFormat?.sampleMimeType?.substringAfterLast('/')?.uppercase(Locale.US)
-                ?: "Audio"
+            // Container suffixes (m4a, mp4, mka…) say nothing about the audio
+            // codec: an m4a can be AAC or E-AC-3 with Atmos objects. When the
+            // song only gives a container, prefer the decoder's MIME type,
+            // which is where JOC/Atmos/TrueHD actually show up.
+            val engineCodec = engineFormat?.sampleMimeType?.substringAfterLast('/')?.uppercase(Locale.US)
+            val songCodec = song?.codec?.takeIf { it.isNotBlank() }
+            val containerCodecs = setOf("M4A", "MP4", "M4B", "MOV", "MKA", "MKV", "WEBM", "OGG", "AUDIO")
+            val sourceCodec = when {
+                engineCodec != null && (songCodec == null || songCodec.uppercase(Locale.US) in containerCodecs) -> engineCodec
+                songCodec != null -> songCodec
+                engineCodec != null -> engineCodec
+                else -> "Audio"
+            }
             val sourceBitrate = (song?.bitrate ?: 0).takeIf { it > 0 }?.div(1000)
                 ?: (if (engineFormat != null && engineFormat.bitrate > 0) engineFormat.bitrate / 1000 else 0)
             val sourceSampleRate = (song?.sampleRate ?: 0).takeIf { it > 0 }
