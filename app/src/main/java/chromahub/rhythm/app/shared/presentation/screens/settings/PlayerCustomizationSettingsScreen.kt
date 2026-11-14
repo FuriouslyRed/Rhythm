@@ -338,23 +338,23 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = MaterialSymbolIcon("badge"),
-                                title = context.getString(R.string.settings_quality_in_now_playing_artist),
-                                description = context.getString(R.string.settings_quality_in_now_playing_artist_desc),
-                                toggleState = playerQualityInNowPlayingArtist,
-                                onToggleChange = { appSettings.setPlayerQualityInNowPlayingArtist(it) }
-                            )
-                        ),
-                        toMaterial3SettingsItem(
-                            context = context,
-                            hapticFeedback = haptics,
-                            item = SettingItem(
                                 icon = MaterialSymbolIcon("visibility"),
                                 title = context.getString(R.string.settings_expressive_quality_badge_always_visible),
                                 description = context.getString(R.string.settings_expressive_quality_badge_always_visible_desc),
                                 toggleState = expressiveQualityBadgeAlwaysVisible,
                                 onToggleChange = { appSettings.setExpressiveQualityBadgeAlwaysVisible(it) },
                                 enabled = playerShowAudioQualityBadges
+                            )
+                        ),
+                        toMaterial3SettingsItem(
+                            context = context,
+                            hapticFeedback = haptics,
+                            item = SettingItem(
+                                icon = MaterialSymbolIcon("badge"),
+                                title = context.getString(R.string.settings_quality_in_now_playing_artist),
+                                description = context.getString(R.string.settings_quality_in_now_playing_artist_desc),
+                                toggleState = playerQualityInNowPlayingArtist,
+                                onToggleChange = { appSettings.setPlayerQualityInNowPlayingArtist(it) }
                             )
                         )
                     ),

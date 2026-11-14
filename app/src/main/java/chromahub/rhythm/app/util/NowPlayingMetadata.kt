@@ -14,8 +14,8 @@ import chromahub.rhythm.app.shared.data.model.PlaybackQualityInfo
  *
  * When the "quality in artist" setting is on the artist becomes
  * `Artist • Hi-Res`, `Artist • Dolby Atmos`, `Artist • Studio Master`, … using
- * the same detector as the in-app quality badges, but evaluated from the file's
- * own metadata so it is available before playback starts.
+ * the same detector as the in-app quality badges. Lossy tracks keep the plain
+ * artist name, with no suffix at all.
  *
  * This only affects the media metadata sent to the system; the app UI keeps
  * showing the plain artist name.
@@ -52,12 +52,12 @@ object NowPlayingMetadata {
             channelCount = channelCount ?: 2
         )
 
-        // Lossy stereo tracks get a flat "Lossy" marker instead of a bitrate
-        // figure: the point of the suffix is "can I tell if this is lossless",
-        // not a kbps readout. Descriptive formats (Dolby, DTS, MPEG-H) keep
+        // Lossy tracks carry no suffix at all: the point of the suffix is to
+        // mark lossless and special formats, and a bare "Lossy" on most of a
+        // library is noise. Descriptive formats (Dolby, DTS, MPEG-H) keep
         // their own labels.
         if (quality.qualityType == AudioQualityDetector.QualityType.LOSSY_COMPRESSED) {
-            return "Lossy"
+            return ""
         }
         return AudioQualityDetector.getQualityBadge(quality)
     }
@@ -88,7 +88,7 @@ object NowPlayingMetadata {
         info.qualityType == AudioQualityDetector.QualityType.HI_RES_STUDIO_MASTER -> "Studio Master"
         info.isLossless && info.isHiRes -> "Hi-Res"
         info.isLossless -> "Lossless"
-        info.qualityLabel.isNotBlank() -> "Lossy"
+        // Nothing for lossy audio — see qualityLabel().
         else -> ""
     }
 
