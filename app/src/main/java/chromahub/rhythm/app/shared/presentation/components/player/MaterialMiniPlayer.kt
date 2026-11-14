@@ -907,14 +907,16 @@ shape = RectangleShape,
                                 )
                             }
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
+                            // Original artist/time layout, with the glyph laid
+                            // over the trailing edge so the clock can resize
+                            // freely without moving it.
+                            Box(modifier = Modifier.fillMaxWidth()) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = spacedBy(if (isCompactHeight) 3.dp else 6.dp),
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(end = if (showMiniQualityBadge) 20.dp else 0.dp)
                                 ) {
                                     // Artist info with auto-scrolling
                                     if (song != null) {
@@ -925,7 +927,7 @@ shape = RectangleShape,
                                                 fontSize = if (isCompactHeight) 11.sp else 13.sp
                                             ),
                                             gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                                            modifier = Modifier.weight(1f),
+                                            modifier = Modifier.weight(1f, fill = false),
                                             enabled = true
                                         )
                                     } else {
@@ -938,7 +940,7 @@ shape = RectangleShape,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.weight(1f)
+                                            modifier = Modifier.weight(1f, fill = false)
                                         )
                                     }
 
@@ -971,8 +973,6 @@ shape = RectangleShape,
                                     }
                                 }
 
-                                // Pinned to the far right so clock ticks cannot
-                                // shift the glyph.
                                 if (showMiniQualityBadge && song != null) {
                                     AudioQualityIcon(
                                         song = song,
@@ -981,7 +981,7 @@ shape = RectangleShape,
                                         padding = 0.dp,
                                         shape = RectangleShape,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.padding(start = if (isCompactHeight) 2.dp else 4.dp)
+                                        modifier = Modifier.align(Alignment.CenterEnd)
                                     )
                                 }
                             }
