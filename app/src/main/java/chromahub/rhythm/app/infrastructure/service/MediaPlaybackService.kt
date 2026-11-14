@@ -34,15 +34,18 @@ import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.ExoPlaybackException
 import androidx.media3.session.CommandButton
+import androidx.media3.session.LibraryResult
 import androidx.media3.session.MediaController
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
+import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionError
 import androidx.media3.session.SessionResult
 import chromahub.rhythm.app.activities.MainActivity
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.infrastructure.service.car.CarLibrary
 import chromahub.rhythm.app.infrastructure.service.player.RhythmPlayerEngine
 import chromahub.rhythm.app.infrastructure.service.player.TransitionController
 import chromahub.rhythm.app.infrastructure.service.player.PreloadController
@@ -55,7 +58,9 @@ import chromahub.rhythm.app.infrastructure.widget.WidgetUpdater
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Callable
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 import java.util.Locale
 import kotlinx.coroutines.*
 import android.app.NotificationChannel
@@ -92,6 +97,18 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
     
     // Service-scoped coroutine scope for background operations
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    // Android Auto browse tree (lazy: the car can browse before the service is warm)
+    private val carLibrary by lazy { CarLibrary(this) }
+    private val carExecutor = Executors.newFixedThreadPool(2) { runnable ->
+        Thread(runnable, "rhythm-car-browse").apply { isDaemon = true }
+    }
+
+    /** Runs a suspending browse query off the car's callback thread. */
+    private fun <T> browse(block: suspend () -> T): ListenableFuture<T> =
+        Futures.submit(Callable { runBlocking { block() } }, carExecutor)
+
+    private fun qualityInArtist(): Boolean = appSettings.playerQualityInNowPlayingArtist.value
     
     // Track current custom layout state to avoid unnecessary updates
     private var lastShuffleState: Boolean? = null
@@ -2688,47 +2705,113 @@ notificationManager.createNotificationChannel(sleepTimerChannel)
             mediaSession: MediaSession,
             controller: MediaSession.ControllerInfo,
             mediaItems: List<MediaItem>
-        ): ListenableFuture<List<MediaItem>> {
+        ): ListenableFuture<List<MediaItem>> = browse {
             Log.d(TAG, "onAddMediaItems: ${mediaItems.size} items")
-            
-            val updatedMediaItems = mediaItems.map { mediaItem ->
-                if (mediaItem.requestMetadata.searchQuery != null) {
-                    // This is a search request
-                    Log.d(TAG, "Search request: ${mediaItem.requestMetadata.searchQuery}")
-                    mediaItem
-                } else if (mediaItem.mediaId.isNotEmpty()) {
-                    // Check if this is an external URI that we've cached
-                    val cachedItem = externalUriCache[mediaItem.mediaId]
-                    cachedItem ?: mediaItem
-                } else {
-                    mediaItem
+
+            // The car sends bare media ids: turn each back into a playable item.
+            // Search requests and external files pass through untouched.
+            val resolved = mutableListOf<MediaItem>()
+            for (item in mediaItems) {
+                when {
+                    item.requestMetadata.searchQuery != null -> {
+                        Log.d(TAG, "Search request: ${item.requestMetadata.searchQuery}")
+                        resolved += item
+                    }
+                    item.mediaId.isBlank() -> resolved += item
+                    else -> {
+                        val fromLibrary = carLibrary.resolve(listOf(item.mediaId), qualityInArtist())
+                        if (fromLibrary.isNotEmpty()) {
+                            resolved += fromLibrary
+                        } else {
+                            resolved += externalUriCache[item.mediaId] ?: item
+                        }
+                    }
                 }
             }
-            
-            return Futures.immediateFuture(updatedMediaItems)
+            resolved
         }
         
         override fun onGetLibraryRoot(
             session: MediaLibrarySession,
             browser: MediaSession.ControllerInfo,
             params: LibraryParams?
-        ): ListenableFuture<androidx.media3.session.LibraryResult<MediaItem>> {
+        ): ListenableFuture<LibraryResult<MediaItem>> {
             Log.d(TAG, "onGetLibraryRoot from ${browser.packageName}")
-            
-            // Create a root media item
-            val rootItem = MediaItem.Builder()
-                .setMediaId("root")
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle("Rhythm Music Library")
-                        .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
-                        .setIsPlayable(false)
-                        .setIsBrowsable(true)
-                        .build()
-                )
-                .build()
-                
-            return Futures.immediateFuture(androidx.media3.session.LibraryResult.ofItem(rootItem, params))
+            return Futures.immediateFuture(LibraryResult.ofItem(carLibrary.rootItem(), params))
+        }
+
+        override fun onGetChildren(
+            session: MediaLibrarySession,
+            browser: MediaSession.ControllerInfo,
+            parentId: String,
+            page: Int,
+            pageSize: Int,
+            params: LibraryParams?
+        ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> = browse {
+            Log.d(TAG, "onGetChildren: $parentId page=$page size=$pageSize")
+            val children = carLibrary.children(parentId, page, pageSize, qualityInArtist())
+            LibraryResult.ofItemList(children, params)
+        }
+
+        override fun onGetItem(
+            session: MediaLibrarySession,
+            browser: MediaSession.ControllerInfo,
+            mediaId: String
+        ): ListenableFuture<LibraryResult<MediaItem>> = browse {
+            val item = carLibrary.item(mediaId, qualityInArtist())
+            if (item == null) {
+                LibraryResult.ofError(SessionError.ERROR_BAD_VALUE)
+            } else {
+                LibraryResult.ofItem(item, null)
+            }
+        }
+
+        override fun onSubscribe(
+            session: MediaLibrarySession,
+            browser: MediaSession.ControllerInfo,
+            parentId: String,
+            params: LibraryParams?
+        ): ListenableFuture<LibraryResult<Void>> {
+            Log.d(TAG, "onSubscribe: $parentId from ${browser.packageName}")
+            return Futures.immediateFuture(LibraryResult.ofVoid())
+        }
+
+        override fun onSearch(
+            session: MediaLibrarySession,
+            browser: MediaSession.ControllerInfo,
+            query: String,
+            params: LibraryParams?
+        ): ListenableFuture<LibraryResult<Void>> {
+            Log.d(TAG, "onSearch: \"$query\"")
+            return Futures.immediateFuture(LibraryResult.ofVoid())
+        }
+
+        override fun onGetSearchResult(
+            session: MediaLibrarySession,
+            browser: MediaSession.ControllerInfo,
+            query: String,
+            page: Int,
+            pageSize: Int,
+            params: LibraryParams?
+        ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> = browse {
+            Log.d(TAG, "onGetSearchResult: \"$query\" page=$page")
+            LibraryResult.ofItemList(carLibrary.search(query, qualityInArtist()), params)
+        }
+
+        override fun onPlaybackResumption(
+            session: MediaSession,
+            controllerInfo: MediaSession.ControllerInfo
+        ): ListenableFuture<MediaItemsWithStartPosition> = browse {
+            Log.d(TAG, "onPlaybackResumption for ${controllerInfo.packageName}")
+            val savedIds = appSettings.savedQueue.value
+            if (savedIds.isEmpty()) {
+                MediaItemsWithStartPosition(emptyList(), 0, 0L)
+            } else {
+                val items = carLibrary.resolve(savedIds, qualityInArtist())
+                val index = appSettings.savedQueueIndex.value
+                    .coerceIn(0, maxOf(0, items.lastIndex))
+                MediaItemsWithStartPosition(items, index, appSettings.savedPlaybackPosition.value)
+            }
         }
     }
 

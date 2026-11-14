@@ -68,6 +68,11 @@
         <meta-data
             android:name="com.google.android.gms.car.notification.SmallIcon"
             android:resource="@drawable/ic_notification" />
+
+        <!-- Registers Rhythm as an Android Auto media app -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
         
         <!-- FileProvider for APK installation -->
         <provider
@@ -158,6 +163,8 @@
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaSessionService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
+                <!-- Android Auto voice search ("play X on Rhythm") -->
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
             </intent-filter>
             <meta-data
                 android:name="androidx.media3.ui.PlayerNotificationManager.smallIcon"

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Tells the Android Auto app that Rhythm is a media app, so it is offered as
+    a media source in the car launcher. Required in addition to the
+    MediaBrowserService intent filter on MediaPlaybackService.
+    See https://developer.android.com/training/cars/media
+-->
+<automotiveApp>
+    <uses name="media" />
+</automotiveApp>

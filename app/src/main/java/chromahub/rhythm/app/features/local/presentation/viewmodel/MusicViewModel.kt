@@ -62,6 +62,7 @@ import chromahub.rhythm.app.util.StoragePathUtils
 import chromahub.rhythm.app.util.AudioDeviceManager
 import chromahub.rhythm.app.util.EqualizerUtils
 import chromahub.rhythm.app.util.GsonUtils
+import chromahub.rhythm.app.util.MediaItemFactory
 import chromahub.rhythm.app.util.MediaUtils
 import chromahub.rhythm.app.util.NowPlayingMetadata
 import chromahub.rhythm.app.util.PlaylistImportExportUtils
@@ -5005,50 +5006,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun Song.toMediaItem(): MediaItem {
-        val extension = this.path?.substringAfterLast('.', "")?.lowercase() ?: ""
-        val mimeType = when (extension) {
-            "opus", "opa" -> "audio/ogg"
-            "ogg", "oga" -> "audio/ogg"
-            "mkv", "mka" -> "audio/x-matroska"
-            "mp3" -> "audio/mpeg"
-            "m4a", "m4b", "mp4" -> "audio/mp4"
-            "flac" -> "audio/flac"
-            "wav" -> "audio/wav"
-            "aac", "adts" -> "audio/aac"
-            "ac3" -> "audio/ac3"
-            "eac", "eac3" -> "audio/eac3"
-            "ac4" -> "audio/ac4"
-            "mhm", "mhm1" -> "audio/mhm1"
-            "mid", "midi" -> "audio/midi"
-            "ape" -> "audio/x-ape"
-            "wv" -> "audio/x-wavpack"
-            "tta" -> "audio/x-tta"
-            "tak" -> "audio/x-tak"
-            "aiff", "aif" -> "audio/aiff"
-            "dsf", "dff", "dsd" -> "audio/dsd"
-            else -> null
-        }
-        return MediaItem.Builder()
-            .setMediaId(this.id)
-            .setUri(this.uri)
-            .apply {
-                if (mimeType != null) {
-                    setMimeType(mimeType)
-                }
-            }
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(this.title)
-                    .setArtist(nowPlayingArtist(this))
-                    .setAlbumTitle(this.album)
-                    .setDurationMs(this.duration)
-                    .setArtworkUri(this.artworkUri)
-                    .setExtras(buildCanonicalMetadataExtras(this, null))
-                    .build()
-            )
-            .build()
-    }
+    private fun Song.toMediaItem(): MediaItem =
+        MediaItemFactory.fromSong(this, appSettings.playerQualityInNowPlayingArtist.value)
 
     private fun mediaItemToTransientSong(mediaItem: MediaItem): Song? {
         val mediaId = mediaItem.mediaId
