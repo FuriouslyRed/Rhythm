@@ -368,19 +368,6 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         toMaterial3SettingsItem(
                             context = context,
                             hapticFeedback = haptics,
-                            item = SettingItem(
-                                icon = MaterialSymbolIcon("high_quality"),
-                                title = context.getString(R.string.settings_miniplayer_quality_badge),
-                                description = context.getString(R.string.settings_miniplayer_quality_badge_desc),
-                                toggleState = miniPlayerQualityBadge,
-                                onToggleChange = { appSettings.setMiniPlayerQualityBadge(it) },
-                                // Same master switch as the in-player badge.
-                                enabled = playerShowAudioQualityBadges
-                            )
-                        ),
-                        toMaterial3SettingsItem(
-                            context = context,
-                            hapticFeedback = haptics,
                             item = if (expressiveShapesEnabled) {
                                 SettingItem(
                                     icon = MaterialSymbolIcon("rounded_corner"),
@@ -412,6 +399,19 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                 )
                 Material3SettingsGroup(
                     items = listOf(
+                        toMaterial3SettingsItem(
+                            context = context,
+                            hapticFeedback = haptics,
+                            item = SettingItem(
+                                icon = MaterialSymbolIcon("high_quality"),
+                                title = context.getString(R.string.settings_miniplayer_quality_badge),
+                                description = context.getString(R.string.settings_miniplayer_quality_badge_desc),
+                                toggleState = miniPlayerQualityBadge,
+                                onToggleChange = { appSettings.setMiniPlayerQualityBadge(it) },
+                                // Same master switch as the in-player badge.
+                                enabled = playerShowAudioQualityBadges
+                            )
+                        ),
                         toMaterial3SettingsItem(
                             context = context,
                             hapticFeedback = haptics,
