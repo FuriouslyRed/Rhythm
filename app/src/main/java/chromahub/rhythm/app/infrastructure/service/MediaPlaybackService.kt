@@ -2891,7 +2891,12 @@ notificationManager.createNotificationChannel(sleepTimerChannel)
         }
 
         Log.d(TAG, "Media item transitioned: ${mediaItem?.mediaMetadata?.title}, reason=$reason")
-        
+
+        // Never let the outgoing track's decoder reading stand in for this one:
+        // consumers ignore a null quality and fall back to the song's own
+        // metadata until fresh telemetry lands (see updatePlaybackQuality()).
+        _currentPlaybackQuality.value = null
+
         // Update custom layout when song changes to reflect correct favorite state
         scheduleCustomLayoutUpdate(50) // Shorter delay for song transitions
         
