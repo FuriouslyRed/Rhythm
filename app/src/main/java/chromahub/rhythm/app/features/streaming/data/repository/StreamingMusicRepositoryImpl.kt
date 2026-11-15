@@ -167,6 +167,9 @@ class StreamingMusicRepositoryImpl(
         initialCatalogLoad = BackgroundLoad(repositoryScope) { loadCatalogCacheForActiveService() }
         repositoryScope.launch {
             initialCatalogLoad.await()
+            // Files can outlive their index entry (older builds dropped them during
+            // init); re-attach them now that the catalog can name them.
+            reconcileOrphanedDownloads()
             // The current service was just loaded; reload only when it changes.
             appSettings.streamingService.drop(1).collect { serviceId ->
                 loadCatalogCacheForActiveService(normalizeServiceId(serviceId))
@@ -219,6 +222,50 @@ class StreamingMusicRepositoryImpl(
             }
         } catch (e: Exception) {
             Log.e("StreamingMusicRepo", "Error loading downloaded songs index", e)
+        }
+    }
+
+    /**
+     * Re-attaches downloads whose file survived but whose index entry did not.
+     * Filenames only carry [DownloadFiles.safeName] of the song id, so the catalog
+     * (by safe name) is what can give them back their metadata.
+     */
+    private fun reconcileOrphanedDownloads() {
+        try {
+            val catalog = songCache.values.toList()
+                .ifEmpty { songsFlow.value.filterIsInstance<StreamingSong>() }
+            if (catalog.isEmpty()) return
+
+            val bySafeName = catalog.associateBy { DownloadFiles.safeName(it.id) }
+            var recovered = 0
+            downloadDirectory.listFiles()?.forEach { file ->
+                if (!file.isFile || file.length() <= 0L) return@forEach
+                val ext = "." + file.extension.lowercase()
+                if (ext !in DownloadFiles.AUDIO_EXTENSIONS) return@forEach
+                val safeId = file.name.dropLast(ext.length)
+                val song = bySafeName[safeId] ?: return@forEach
+                if (downloadedSongsMap.containsKey(song.id)) return@forEach
+
+                val safeAlbumKey = (song.albumId ?: "${song.artist}_${song.album}")
+                    .replace(":", "_").replace("/", "_").replace("\\", "_")
+                    .replace(" ", "_").lowercase()
+                val albumArt = java.io.File(downloadDirectory, "${safeAlbumKey}_album_art.jpg")
+                val songArt = java.io.File(downloadDirectory, "${safeId}_art.jpg")
+                val artwork = when {
+                    albumArt.exists() -> Uri.fromFile(albumArt).toString()
+                    songArt.exists() -> Uri.fromFile(songArt).toString()
+                    else -> song.artworkUri
+                }
+                downloadedSongsMap[song.id] = song.copy(
+                    streamingUrl = Uri.fromFile(file).toString(),
+                    artworkUri = artwork
+                )
+                recovered++
+                android.util.Log.d("RhythmDlIndex", "recovered id=${song.id} file=${file.name}")
+            }
+            if (recovered > 0) saveDownloadedSongsIndex()
+        } catch (e: Exception) {
+            Log.e("StreamingMusicRepo", "Error reconciling orphaned downloads", e)
         }
     }
 
