@@ -140,9 +140,35 @@ class NowPlayingMetadataTest {
             )
         )
         assertEquals(
-            "DSD",
+            "DSD64",
             NowPlayingMetadata.labelFor(
                 info(AudioQualityDetector.QualityType.DSD_HIGH_RES, label = "DSD64")
+            )
+        )
+        assertEquals(
+            "Multichannel Lossless 5.1",
+            NowPlayingMetadata.labelFor(
+                info(
+                    AudioQualityDetector.QualityType.LOSSLESS_SURROUND,
+                    label = "Multichannel Lossless 5.1",
+                    lossless = true
+                )
+            )
+        )
+        assertEquals(
+            "MPEG-H 3D",
+            NowPlayingMetadata.labelFor(
+                info(AudioQualityDetector.QualityType.MPEG_H_3D, label = "MPEG-H 3D")
+            )
+        )
+        assertEquals(
+            "Dolby Digital Plus",
+            NowPlayingMetadata.labelFor(
+                info(
+                    AudioQualityDetector.QualityType.DOLBY_LOSSY_SURROUND,
+                    label = "Dolby Digital Plus 5.1",
+                    dolby = true
+                )
             )
         )
     }

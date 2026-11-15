@@ -73,23 +73,36 @@ object NowPlayingMetadata {
 
     /**
      * Short label from the decoder telemetry that also feeds the audio-quality
-     * badge, so the artist line matches what the badge sheet reports.
+     * badge. The badge's own wording is used verbatim so the artist line and the
+     * quality sheet can never disagree (surround, MPEG-H, Dolby, DTS, DSD, ...).
      */
-    fun labelFor(info: PlaybackQualityInfo): String = when {
-        info.qualityType == AudioQualityDetector.QualityType.DOLBY_ATMOS -> "Dolby Atmos"
-        info.qualityType == AudioQualityDetector.QualityType.DOLBY_LOSSLESS -> "Dolby TrueHD"
-        info.isDolby && info.qualityLabel.isNotBlank() -> info.qualityLabel
-        info.isDTS -> when {
-            info.qualityLabel.contains("X", ignoreCase = true) -> "DTS:X"
-            info.isLossless -> "DTS-HD MA"
-            else -> "DTS"
-        }
-        info.qualityType == AudioQualityDetector.QualityType.DSD_HIGH_RES -> "DSD"
-        info.qualityType == AudioQualityDetector.QualityType.HI_RES_STUDIO_MASTER -> "Studio Master"
-        info.isLossless && info.isHiRes -> "Hi-Res"
-        info.isLossless -> "Lossless"
+    fun labelFor(info: PlaybackQualityInfo): String {
         // Nothing for lossy audio — see qualityLabel().
-        else -> ""
+        if (info.qualityType == AudioQualityDetector.QualityType.LOSSY_COMPRESSED) return ""
+
+        val badge = AudioQualityDetector.getQualityBadge(
+            AudioQualityDetector.AudioQuality(
+                qualityType = info.qualityType,
+                qualityLabel = info.qualityLabel,
+                qualityDescription = info.qualityDescription,
+                isLossless = info.isLossless,
+                isHiRes = info.isHiRes,
+                isDolby = info.isDolby,
+                isDTS = info.isDTS,
+                bitDepthEstimate = info.sourceBitDepth,
+                category = info.qualityCategory
+            )
+        )
+        if (badge.isNotBlank()) return badge
+
+        // Telemetry without a resolved type: fall back to the flags.
+        return when {
+            info.isDolby && info.qualityLabel.isNotBlank() -> info.qualityLabel
+            info.isDTS -> "DTS"
+            info.isLossless && info.isHiRes -> "Hi-Res"
+            info.isLossless -> "Lossless"
+            else -> ""
+        }
     }
 
     /** Joins an artist and a quality label with the bullet separator. */
