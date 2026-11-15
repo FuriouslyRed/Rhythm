@@ -385,7 +385,7 @@ fun AboutScreen(
                         githubUsername = "FuriouslyRed",
                         avatarUrl = "https://github.com/FuriouslyRed.png",
                         supportUrl = "https://github.com/FuriouslyRed",
-                        teamTitle = "Lead Developer",
+                        teamTitle = "Lead Slopper",
                         teamDescription = "Rhythm Red — personal fork, bug fixes and new features",
                         openUrl = openUrl
                     )
