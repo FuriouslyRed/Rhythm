@@ -309,7 +309,7 @@ jobs:
           cat > /tmp/discord_payload.json <<EOF
           {
             "username": "Rhythm CI",
-            "avatar_url": "https://github.com/cromaguy/Rhythm/raw/main/assets/icon.png",
+            "avatar_url": "https://github.com/FuriouslyRed/Rhythm/raw/red/assets/icon.png",
             "embeds": [
               {
                 "title": "🎵 Rhythm Nightly Build Available",

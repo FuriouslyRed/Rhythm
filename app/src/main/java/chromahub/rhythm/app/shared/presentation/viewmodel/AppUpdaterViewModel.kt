@@ -118,7 +118,7 @@ class AppUpdaterViewModel(
     private val updateDownloadCompletionAutoDismissMs = 7000L
 
     // GitHub repository information
-    private val githubOwner = "cromaguy"
+    private val githubOwner = "FuriouslyRed"
     private val githubRepo = "Rhythm"
 
     // Update check interval (6 hours)
@@ -655,7 +655,7 @@ class AppUpdaterViewModel(
                 .replace(Regex("-nightly-r\\d+-[0-9a-f]+", RegexOption.IGNORE_CASE), "")
         val versionName = "$cleanedBaseName-nightly-r${run.run_number}-$shortSha"
 
-        val downloadUrl = "https://nightly.link/cromaguy/Rhythm/workflows/nightly.yml/main/Rhythm-Nightly-Artifacts.zip"
+        val downloadUrl = "https://nightly.link/FuriouslyRed/Rhythm/workflows/nightly.yml/main/Rhythm-Nightly-Artifacts.zip"
 
         val commitMessage = run.head_commit?.message ?: "New features and performance updates"
         val changelogItems = ChangelogFilter.filterLines(commitMessage.lines())
@@ -782,7 +782,7 @@ class AppUpdaterViewModel(
                             "Bug fixes and optimizations",
                         ),
                     knownIssues = emptyList(),
-                    downloadUrl = "https://github.com/cromaguy/Rhythm/releases",
+                    downloadUrl = "https://github.com/FuriouslyRed/Rhythm/releases",
                     apkAssetName = "rhythm-release.apk",
                     apkSize = 0,
                     releaseNotes = "Test update",

@@ -2,7 +2,7 @@ name: Feature Request
 description: Propose a new feature, enhancement, or request an improvement in Rhythm
 title: "[FEATURE]: "
 labels: ["feature request"]
-assignees: ["cromaguy"]
+assignees: ["FuriouslyRed"]
 body:
   - type: textarea
     id: summary

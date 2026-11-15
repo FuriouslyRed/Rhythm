@@ -2,7 +2,7 @@ name: Translation / Weblate Issue
 description: Report missing, incorrect, or new language translation issues
 title: "[TRANSLATION]: "
 labels: ["translation", "weblate"]
-assignees: ["cromaguy"]
+assignees: ["FuriouslyRed"]
 body:
   - type: markdown
     attributes:

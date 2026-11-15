@@ -137,7 +137,7 @@ object NetworkClient {
         extraHeaders: Map<String, String> = emptyMap()
     ) = Interceptor { chain ->
         try {
-            val userAgent = customUserAgent ?: "Rhythm/${BuildConfig.VERSION_NAME} (https://github.com/cromaguy/Rhythm)"
+            val userAgent = customUserAgent ?: "Rhythm/${BuildConfig.VERSION_NAME} (https://github.com/FuriouslyRed/Rhythm)"
             val requestBuilder = chain.request().newBuilder()
                 .header("User-Agent", userAgent)
                 .header("Accept", "application/json")
@@ -176,8 +176,8 @@ object NetworkClient {
     private val lrclibHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(appHeadersInterceptor(
-                customUserAgent = "Rhythm/${BuildConfig.VERSION_NAME} (https://github.com/cromaguy/Rhythm)",
-                extraHeaders = mapOf("Lrclib-Client" to "Rhythm/${BuildConfig.VERSION_NAME} (https://github.com/cromaguy/Rhythm)")
+                customUserAgent = "Rhythm/${BuildConfig.VERSION_NAME} (https://github.com/FuriouslyRed/Rhythm)",
+                extraHeaders = mapOf("Lrclib-Client" to "Rhythm/${BuildConfig.VERSION_NAME} (https://github.com/FuriouslyRed/Rhythm)")
             ))
             .addInterceptor(loggingInterceptor)
             .addInterceptor(retryInterceptor)

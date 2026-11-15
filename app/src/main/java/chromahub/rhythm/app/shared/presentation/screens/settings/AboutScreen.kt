@@ -534,8 +534,8 @@ fun AboutScreen(
                         item = SettingItem(
                             icon = RhythmIcons.BugReport,
                             title = context.getString(R.string.settings_about_report_bug),
-                            description = "github.com/cromaguy/Rhythm/issues",
-                            onClick = { openUrl("https://github.com/cromaguy/Rhythm/issues") }
+                            description = "github.com/FuriouslyRed/Rhythm/issues",
+                            onClick = { openUrl("https://github.com/FuriouslyRed/Rhythm/issues") }
                         )
                     ),
                     toMaterial3SettingsItem(

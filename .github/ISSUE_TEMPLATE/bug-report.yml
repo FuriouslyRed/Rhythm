@@ -2,7 +2,7 @@ name: Bug Report
 description: Report a bug or issue you encountered in Rhythm
 title: "[BUG]: "
 labels: ["bug"]
-assignees: ["cromaguy"]
+assignees: ["FuriouslyRed"]
 body:
   - type: markdown
     attributes:

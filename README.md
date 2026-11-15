@@ -1,49 +1,41 @@
-
-<div align="center">
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/icon.png">
-  <source media="(prefers-color-scheme: light)" srcset="assets/icon.png">
-  <img src="assets/icon_full.png" alt="Rhythm Music Player" width="220" style="border-radius: 32px; margin: 20px 0; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
-</picture>
-
-# Project Rhythm
-**Your Music, Your Rhythm.**
-
-<a href="https://trendshift.io/repositories/15217" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15217" alt="cromaguy%2FRhythm | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+# Rhythm Red
+**A personal fork of Rhythm — your music, your rules.**
 
 [![Platform](https://img.shields.io/badge/Android-34A853?style=flat-square&logo=android&logoColor=white)](https://android.com)
 [![API Level](https://img.shields.io/badge/API-26%2B-4285f4?style=flat-square&logo=android&logoColor=white)](https://android-arsenal.com/api?level=26)
 [![Kotlin](https://img.shields.io/badge/Kotlin-100%25-7c4dff?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![License](https://img.shields.io/badge/License-GPL_v3-4285f4?style=flat-square)](docs/LICENSE)
 <br>
-[![Release](https://img.shields.io/github/v/release/cromaguy/Rhythm?style=flat-square&logo=github&color=673ab7&logoColor=white)](https://github.com/cromaguy/Rhythm/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/cromaguy/Rhythm/total?style=flat-square&logo=download&color=00bcd4&logoColor=white)](https://github.com/cromaguy/Rhythm/releases)
-[![Stars](https://img.shields.io/github/stars/cromaguy/Rhythm?style=flat-square&logo=star&color=ffc107&logoColor=white)](https://github.com/cromaguy/Rhythm/stargazers)
-[<img src="https://shields.rbtlog.dev/simple/chromahub.rhythm.app?style=flat-square" alt="RB shield">](https://shields.rbtlog.dev/chromahub.rhythm.app)
-[![Translation status](https://hosted.weblate.org/widget/rhythm/strings/svg-badge.svg)](https://hosted.weblate.org/engage/rhythm/)
+[![Release](https://img.shields.io/github/v/release/FuriouslyRed/Rhythm?style=flat-square&logo=github&color=b3261e&logoColor=white)](https://github.com/FuriouslyRed/Rhythm/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/FuriouslyRed/Rhythm/total?style=flat-square&logo=download&color=00bcd4&logoColor=white)](https://github.com/FuriouslyRed/Rhythm/releases)
+[![Stars](https://img.shields.io/github/stars/FuriouslyRed/Rhythm?style=flat-square&logo=star&color=ffc107&logoColor=white)](https://github.com/FuriouslyRed/Rhythm/stargazers)
 
-### [🌐 Website](https://rhythmweb.vercel.app/) • [▶️ Google Play](https://play.google.com/store/apps/details?id=chromahub.rhythm.play) • [📥 Download](https://github.com/cromaguy/Rhythm/releases/latest) • [🎧 Discord](https://discord.gg/XjPyUYPQYc) • [💬 Telegram](https://t.me/RhythmSupport) • [📖 Wiki](https://github.com/cromaguy/Rhythm/wiki)
+### [📥 Download](https://github.com/FuriouslyRed/Rhythm/releases/latest) • [🐛 Issues](https://github.com/FuriouslyRed/Rhythm/issues)
+
+> Rhythm Red is a personal build of [Rhythm](https://github.com/cromaguy/Rhythm) by Anjishnu Nandi.
+> It tracks upstream for fixes, then adds its own features on top. The `upstream`
+> branch is an untouched mirror of the original project; `red` is this fork's line.
 
 </div>
 
 ---
 
-## 💖 Support the Developer
+## 💖 Support the Original Project
 
-Building and maintaining **Rhythm** is a massive labor of love, provided completely free and open-source. If you love using this app, please consider supporting development!
+Rhythm Red is a personal fork and does not ask for donations. The app exists
+because of [Rhythm](https://github.com/cromaguy/Rhythm) by Anjishnu Nandi — if you
+enjoy it, consider supporting the original project:
 
 <div align="center">
 
-| ☕ **One-Time Support** | 🤝 **Ongoing Sponsorship** |
-| :---: | :---: |
-| [![Ko-Fi](https://img.shields.io/badge/Buy_Me_A_Coffee-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/anjishnunandi)<br><br>[![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](http://paypal.me/AnjishnuNandi) | [![Patreon](https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://patreon.com/AnjishnuNandi)<br><br>[![GitHub Sponsor](https://img.shields.io/badge/GitHub_Sponsors-EA4AAA?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/cromaguy) |
+[![Ko-Fi](https://img.shields.io/badge/Buy_Me_A_Coffee-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/anjishnunandi)
+[![GitHub Sponsor](https://img.shields.io/badge/GitHub_Sponsors-EA4AAA?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/cromaguy)
 
 </div>
 
 ---
 
-## ✨ Why Choose Rhythm?
+## ✨ Why Rhythm Red?
 
 Rhythm is a modern, open-source music player built with **Material 3 Expressive** design. It delivers professional-grade audio with High-Resolution playback, EAC3-JOC/Dolby Atmos via FFmpeg, and completely respects your privacy.
 
@@ -167,7 +159,7 @@ Choose your preferred platform to download the latest version of Rhythm:
 | Source | Badge | Details |
 | :--- | :---: | :--- |
 | **Google Play** | [<img src="assets/badge-googleplay.png" alt="Get it on Google Play" height="35">](https://play.google.com/store/apps/details?id=chromahub.rhythm.play) | [Install on Android](https://play.google.com/store/apps/details?id=chromahub.rhythm.play) • [Join from Web (Open Testing)](https://play.google.com/apps/testing/chromahub.rhythm.play) |
-| **GitHub** | [<img src="assets/badge-github.png" alt="Download APK" height="35">](https://github.com/cromaguy/Rhythm/releases/latest) | Direct APK download (Full Features) |
+| **GitHub** | [<img src="assets/badge-github.png" alt="Download APK" height="35">](https://github.com/FuriouslyRed/Rhythm/releases/latest) | Direct APK download (Full Features) |
 | **F-Droid** | [<img src="assets/badge-fdroid.png" alt="F-Droid" height="35">](https://f-droid.org/packages/chromahub.rhythm.app) | Official repository (Full Features) |
 | **IzzyOnDroid** | [<img src="assets/badge-izzyondroid.png" alt="IzzyOnDroid" height="35">](https://apt.izzysoft.de/fdroid/index/apk/chromahub.rhythm.app) | Privacy-focused repo (Full Features) |
 | **Obtainium** | [<img src="assets/badge-obtainium.png" alt="Obtainium" height="35">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/cromaguy/Rhythm/) | Auto-updates straight from GitHub |
@@ -221,8 +213,8 @@ Rhythm is translated into **28+ languages** by the community via **Weblate**. Yo
 
 We welcome contributions! See our [CONTRIBUTING.md](https://github.com/cromaguy/Rhythm/blob/main/docs/CONTRIBUTING.md) for guidelines.
 
-* 🐛 **Found a bug?** [Open an issue](https://github.com/cromaguy/Rhythm/issues)
-* 💡 **Have an idea?** [Request a feature](https://github.com/cromaguy/Rhythm/issues)
+* 🐛 **Found a bug?** [Open an issue](https://github.com/FuriouslyRed/Rhythm/issues)
+* 💡 **Have an idea?** [Request a feature](https://github.com/FuriouslyRed/Rhythm/issues)
 * 💬 **Want to chat?** [Join Discord](https://discord.gg/XjPyUYPQYc), [Telegram](https://t.me/RhythmSupport) or [GitHub Discussions](https://github.com/cromaguy/Rhythm/discussions)
 * 📖 **Need help?** [Read the Wiki](https://github.com/cromaguy/Rhythm/wiki)
 * 🌍 **Want to translate?** [Translate on Weblate](https://hosted.weblate.org/engage/rhythm/)
@@ -231,7 +223,9 @@ We welcome contributions! See our [CONTRIBUTING.md](https://github.com/cromaguy/
 
 ## 🏆 Credits
 
-**Lead Developer & Architect:** [Anjishnu Nandi](https://github.com/cromaguy)
+**Rhythm Red maintainer:** [Isaac](https://github.com/FuriouslyRed)
+
+**Original Rhythm author & architect:** [Anjishnu Nandi](https://github.com/cromaguy)
 
 **Huge Thanks To:**
 * [Izzy](https://github.com/IzzySoft) - IzzyOnDroid repository management

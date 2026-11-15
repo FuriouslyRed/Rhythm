@@ -202,7 +202,7 @@ class UpdateNotificationWorker(
             
             if (channel == "nightly") {
                 var nightlyVersionTag: String? = null
-                val runsResponse = gitHubApiService.getWorkflowRuns("cromaguy", "Rhythm", "nightly.yml")
+                val runsResponse = gitHubApiService.getWorkflowRuns("FuriouslyRed", "Rhythm", "nightly.yml")
                 if (runsResponse.isSuccessful && runsResponse.body() != null) {
                     val latestRun = runsResponse.body()?.workflow_runs?.firstOrNull {
                         it.status == "completed" && it.conclusion == "success"
@@ -218,7 +218,7 @@ class UpdateNotificationWorker(
 
                 // Also check releases for any equal/higher Stable or Beta releases
                 var releaseVersionTag: String? = null
-                val releasesResponse = gitHubApiService.getReleases("cromaguy", "Rhythm")
+                val releasesResponse = gitHubApiService.getReleases("FuriouslyRed", "Rhythm")
                 if (releasesResponse.isSuccessful && releasesResponse.body() != null) {
                     val allReleases = releasesResponse.body()
                     val bestRelease = allReleases?.filter { !it.draft }?.maxWithOrNull { r1, r2 ->
@@ -268,7 +268,7 @@ class UpdateNotificationWorker(
             // Fetch releases for stable or beta channels with conditional headers
             val response = if (channel == "beta") {
                 gitHubApiService.getReleasesWithHeaders(
-                    owner = "cromaguy",
+                    owner = "FuriouslyRed",
                     repo = "Rhythm",
                     perPage = 10,
                     ifNoneMatch = lastETag,
@@ -276,7 +276,7 @@ class UpdateNotificationWorker(
                 )
             } else {
                 gitHubApiService.getLatestReleaseWithHeaders(
-                    owner = "cromaguy",
+                    owner = "FuriouslyRed",
                     repo = "Rhythm",
                     ifNoneMatch = lastETag,
                     ifModifiedSince = lastModified
