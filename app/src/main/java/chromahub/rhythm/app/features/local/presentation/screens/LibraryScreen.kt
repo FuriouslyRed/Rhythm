@@ -3391,10 +3391,10 @@ fun LibrarySongItem(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = MaterialSymbolIcon("check"),
+                            imageVector = MaterialSymbolIcon("download_done"),
                             contentDescription = stringResource(R.string.streaming_downloaded),
                             tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(12.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                     }
                 }
